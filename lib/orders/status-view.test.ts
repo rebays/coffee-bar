@@ -2,8 +2,19 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
 import { __resetOrderStoreForTests, createOrder } from './store.ts'
-import { displayStepIndex, toStatusView } from './status-view.ts'
-import type { OrderActor, OrderLine } from './types.ts'
+import { STAFF_STATE_LABEL, displayStepIndex, staffStateTagVariant, toStatusView } from './status-view.ts'
+import type { OrderActor, OrderLine, OrderState } from './types.ts'
+
+const ALL_STATES: OrderState[] = [
+  'placed',
+  'awaiting_payment',
+  'paid',
+  'payment_failed',
+  'making',
+  'ready',
+  'collected',
+  'cancelled',
+]
 
 const CUSTOMER: OrderActor = { type: 'customer', deviceToken: 'super-secret-device-token' }
 const LINES: OrderLine[] = [
@@ -58,4 +69,21 @@ test('making, ready and collected each get their own step', () => {
 test('payment_failed and cancelled are not part of the tracker', () => {
   assert.equal(displayStepIndex('payment_failed'), null)
   assert.equal(displayStepIndex('cancelled'), null)
+})
+
+test('every state has a staff label', () => {
+  for (const state of ALL_STATES) {
+    assert.ok(STAFF_STATE_LABEL[state].length > 0)
+  }
+})
+
+test('making and ready read as live; terminal states read as settled', () => {
+  assert.equal(staffStateTagVariant('making'), 'live')
+  assert.equal(staffStateTagVariant('ready'), 'live')
+  assert.equal(staffStateTagVariant('collected'), 'sold-out')
+  assert.equal(staffStateTagVariant('cancelled'), 'sold-out')
+  assert.equal(staffStateTagVariant('payment_failed'), 'sold-out')
+  assert.equal(staffStateTagVariant('awaiting_payment'), 'default')
+  assert.equal(staffStateTagVariant('paid'), 'default')
+  assert.equal(staffStateTagVariant('placed'), 'default')
 })

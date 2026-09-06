@@ -54,3 +54,30 @@ export function displayStepIndex(state: OrderState): number | null {
       return null
   }
 }
+
+/** Labels for the staff dashboard — customers never see raw OrderState. */
+export const STAFF_STATE_LABEL: Record<OrderState, string> = {
+  placed: 'Placed',
+  awaiting_payment: 'Awaiting payment',
+  paid: 'Paid',
+  payment_failed: 'Payment failed',
+  making: 'Making',
+  ready: 'Ready',
+  collected: 'Collected',
+  cancelled: 'Cancelled',
+}
+
+/** Which Tag variant reads a state as "happening now" vs. settled/inactive. */
+export function staffStateTagVariant(state: OrderState): 'default' | 'live' | 'sold-out' {
+  switch (state) {
+    case 'making':
+    case 'ready':
+      return 'live'
+    case 'collected':
+    case 'cancelled':
+    case 'payment_failed':
+      return 'sold-out'
+    default:
+      return 'default'
+  }
+}

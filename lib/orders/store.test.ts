@@ -7,6 +7,7 @@ import {
   createOrder,
   getOrder,
   getOrderEvents,
+  listOrders,
   transitionOrder,
 } from './store.ts'
 import type { CreateOrderInput } from './store.ts'
@@ -229,4 +230,46 @@ test('a paid order does not expire even after the awaiting_payment window', () =
   }
 
   assert.equal(getOrder(order.id)!.state, 'paid')
+})
+
+test('listOrders returns newest first', () => {
+  const first = createOrder(sampleInput(), 'idem-1', CUSTOMER)
+  const second = createOrder(sampleInput(), 'idem-2', CUSTOMER)
+
+  const [top, bottom] = listOrders()
+  assert.equal(top.id, second.id)
+  assert.equal(bottom.id, first.id)
+})
+
+test('listOrders filters by state', () => {
+  const a = createOrder(sampleInput(), 'idem-a', CUSTOMER)
+  const b = createOrder(sampleInput(), 'idem-b', CUSTOMER)
+  transitionOrder(a.id, 'awaiting_payment', { type: 'system' })
+
+  const awaitingOnly = listOrders({ states: ['awaiting_payment'] })
+  assert.deepEqual(awaitingOnly.map((o) => o.id), [a.id])
+
+  const placedOnly = listOrders({ states: ['placed'] })
+  assert.deepEqual(placedOnly.map((o) => o.id), [b.id])
+})
+
+test('listOrders finds by pickup code regardless of case, across any state', () => {
+  const order = createOrder(sampleInput(), 'idem-1', CUSTOMER)
+  transitionOrder(order.id, 'awaiting_payment', { type: 'system' })
+  transitionOrder(order.id, 'paid', { type: 'provider', providerId: 'counter' })
+  transitionOrder(order.id, 'making', STAFF)
+  transitionOrder(order.id, 'ready', STAFF)
+  transitionOrder(order.id, 'collected', STAFF)
+
+  const found = listOrders({ pickupCode: order.pickupCode.toLowerCase() })
+  assert.deepEqual(found.map((o) => o.id), [order.id])
+})
+
+test('listOrders with no filter returns every order, including terminal ones', () => {
+  const a = createOrder(sampleInput(), 'idem-a', CUSTOMER)
+  createOrder(sampleInput(), 'idem-b', CUSTOMER)
+  transitionOrder(a.id, 'cancelled', STAFF)
+
+  assert.equal(listOrders().length, 2)
+  assert.deepEqual(listOrders({ states: ['cancelled'] }).map((o) => o.id), [a.id])
 })

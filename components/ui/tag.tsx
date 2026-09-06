@@ -2,7 +2,7 @@
  * Tags are metadata, so they are never cyan — you cannot press one. Dietary
  * tags get the same neutral treatment as any other.
  */
-export type TagVariant = 'default' | 'sold-out' | 'new'
+export type TagVariant = 'default' | 'sold-out' | 'new' | 'live'
 
 const VARIANT: Record<TagVariant, string> = {
   default: 'bg-tag text-secondary',
@@ -11,6 +11,9 @@ const VARIANT: Record<TagVariant, string> = {
   // floor exactly, keeping the muted read without failing it.
   'sold-out': 'border border-hairline bg-transparent text-tertiary',
   new: 'bg-structure text-on-structure',
+  // "Cyan is action, and nothing else... it's happening right now" (§1) — the
+  // staff surface's making/ready states, not a fourth palette colour.
+  live: 'bg-accent-subtle text-accent',
 }
 
 export function Tag({

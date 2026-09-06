@@ -13,16 +13,36 @@ import type { Order, OrderActor, OrderEvent, OrderLine, OrderState } from './typ
  * restart, unlike a real deployment would need.
  */
 
-let orders = new Map<string, Order>()
-let events: OrderEvent[] = []
-let orderIdByIdempotencyKey = new Map<string, string>()
+type OrderStoreState = {
+  orders: Map<string, Order>
+  events: OrderEvent[]
+  orderIdByIdempotencyKey: Map<string, string>
+  /** docs/PAYMENTS.md §2: "Default 20 minutes, configurable." */
+  awaitingPaymentExpiryMs: number
+}
+
+function freshState(): OrderStoreState {
+  return {
+    orders: new Map(),
+    events: [],
+    orderIdByIdempotencyKey: new Map(),
+    awaitingPaymentExpiryMs: 20 * 60 * 1000,
+  }
+}
 
 /**
- * docs/PAYMENTS.md §2: "Default 20 minutes, configurable." A `let`, not a
- * const, so __setAwaitingPaymentExpiryMsForTests can shrink it without
- * needing tests to wait 20 real minutes.
+ * Next.js compiles Server Components/Actions and Route Handlers as separate
+ * bundles ("layers") that can each get their own instance of this module,
+ * even within one dev server process — a plain module-scope `let` here
+ * silently forks into two disconnected stores depending on which layer
+ * touches it first (an order created via a Server Action becomes invisible
+ * to a Route Handler's `getOrder`, which is exactly the bug this anchors
+ * against). `globalThis` is the one thing every layer shares, so pinning
+ * state there keeps it a true process-wide singleton regardless of which
+ * layer's module graph loads this file.
  */
-let awaitingPaymentExpiryMs = 20 * 60 * 1000
+const globalStore = globalThis as unknown as { __coffeeBarOrderStore?: OrderStoreState }
+const state = (globalStore.__coffeeBarOrderStore ??= freshState())
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -37,7 +57,7 @@ function nowIso(): string {
 function expireIfStale(order: Order): Order {
   if (order.state !== 'awaiting_payment') return order
   const age = Date.now() - new Date(order.updatedAt).getTime()
-  if (age < awaitingPaymentExpiryMs) return order
+  if (age < state.awaitingPaymentExpiryMs) return order
 
   const result = transitionOrder(order.id, 'payment_failed', { type: 'system' }, {
     payload: { reason: 'awaiting_payment expired' },
@@ -52,7 +72,7 @@ function appendEvent(
   actor: OrderActor,
   payload?: Record<string, unknown>,
 ): void {
-  events.push({
+  state.events.push({
     id: crypto.randomUUID(),
     orderId,
     fromState,
@@ -78,7 +98,7 @@ export type CreateOrderInput = {
 function issuePickupCode(shopId: string, at: Date): string {
   const day = shopDayKey(at)
   const codesToday = new Set<string>()
-  for (const order of orders.values()) {
+  for (const order of state.orders.values()) {
     if (order.shopId === shopId && shopDayKey(new Date(order.createdAt)) === day) {
       codesToday.add(order.pickupCode)
     }
@@ -96,9 +116,9 @@ export function createOrder(
   idempotencyKey: string,
   actor: OrderActor,
 ): Order {
-  const existingId = orderIdByIdempotencyKey.get(idempotencyKey)
+  const existingId = state.orderIdByIdempotencyKey.get(idempotencyKey)
   if (existingId) {
-    const existing = orders.get(existingId)
+    const existing = state.orders.get(existingId)
     if (existing) return existing
   }
 
@@ -119,16 +139,40 @@ export function createOrder(
     updatedAt: at.toISOString(),
   }
 
-  orders.set(order.id, order)
-  orderIdByIdempotencyKey.set(idempotencyKey, order.id)
+  state.orders.set(order.id, order)
+  state.orderIdByIdempotencyKey.set(idempotencyKey, order.id)
   appendEvent(order.id, null, 'placed', actor)
 
   return order
 }
 
 export function getOrder(id: string): Order | undefined {
-  const order = orders.get(id)
+  const order = state.orders.get(id)
   return order ? expireIfStale(order) : undefined
+}
+
+export type OrderListFilter = {
+  states?: readonly OrderState[]
+  /** Case-insensitive — pickup codes are already uppercase, but staff typing isn't. */
+  pickupCode?: string
+}
+
+/**
+ * Newest first, per docs/BUILD-PLAN.md step 10. Reverses Map insertion
+ * order rather than sorting on `createdAt` — two orders placed within the
+ * same millisecond would tie on the timestamp string, but insertion order
+ * is always creation order since `transitionOrder` re-sets an existing key
+ * in place rather than moving it. Runs every order through `expireIfStale`
+ * first so a stale `awaiting_payment` order that nobody has read yet
+ * doesn't show as live just because the sweep in step 11 hasn't run.
+ */
+export function listOrders(filter: OrderListFilter = {}): Order[] {
+  const code = filter.pickupCode?.toUpperCase()
+  return Array.from(state.orders.values())
+    .reverse()
+    .map(expireIfStale)
+    .filter((order) => (filter.states ? filter.states.includes(order.state) : true))
+    .filter((order) => (code ? order.pickupCode === code : true))
 }
 
 /**
@@ -137,15 +181,15 @@ export function getOrder(id: string): Order | undefined {
  * touch order_events — the provider's own audit trail covers this detail.
  */
 export function setProviderRef(orderId: string, providerRef: string): Order | undefined {
-  const order = orders.get(orderId)
+  const order = state.orders.get(orderId)
   if (!order) return undefined
   const updated: Order = { ...order, providerRef, updatedAt: nowIso() }
-  orders.set(orderId, updated)
+  state.orders.set(orderId, updated)
   return updated
 }
 
 export function getOrderEvents(orderId: string): OrderEvent[] {
-  return events.filter((event) => event.orderId === orderId)
+  return state.events.filter((event) => event.orderId === orderId)
 }
 
 export type TransitionResult =
@@ -165,7 +209,7 @@ export function transitionOrder(
   actor: OrderActor,
   options: TransitionOptions & { reason?: string; payload?: Record<string, unknown> } = {},
 ): TransitionResult {
-  const order = orders.get(orderId)
+  const order = state.orders.get(orderId)
   if (!order) return { ok: false, error: 'not_found' }
 
   if (order.state === toState) {
@@ -183,7 +227,7 @@ export function transitionOrder(
     updatedAt: nowIso(),
     ...(toState === 'cancelled' && options.reason ? { cancelReason: options.reason } : {}),
   }
-  orders.set(orderId, updated)
+  state.orders.set(orderId, updated)
   appendEvent(orderId, fromState, toState, actor, options.payload)
 
   return { ok: true, order: updated, applied: true }
@@ -191,13 +235,10 @@ export function transitionOrder(
 
 /** Test-only reset — mirrors clearCart in lib/cart-store.ts. */
 export function __resetOrderStoreForTests(): void {
-  orders = new Map()
-  events = []
-  orderIdByIdempotencyKey = new Map()
-  awaitingPaymentExpiryMs = 20 * 60 * 1000
+  Object.assign(state, freshState())
 }
 
 /** Test-only — lets tests exercise expiry without waiting 20 real minutes. */
 export function __setAwaitingPaymentExpiryMsForTests(ms: number): void {
-  awaitingPaymentExpiryMs = ms
+  state.awaitingPaymentExpiryMs = ms
 }
