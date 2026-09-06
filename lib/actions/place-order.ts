@@ -39,6 +39,7 @@ export async function placeOrderAction(
   for (const line of lines) {
     const resolved = resolveCartLine(line.slug, line.choices, line.quantity)
     if (!resolved) continue // a slug no longer on the menu — drop it, not the whole order
+    if (resolved.item.soldOut) continue // sold out since it was added — same treatment
     orderLines.push({
       slug: line.slug,
       name: resolved.item.name,

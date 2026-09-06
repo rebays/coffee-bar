@@ -3,12 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { Chip } from '@/components/ui/chip'
 import { staffLogoutAction } from '@/lib/actions/staff-auth'
+import type { MenuItem } from '@/lib/types'
 import type { StaffAction, StaffOrderView } from '@/lib/orders/staff-view'
 
+import { StaffInventoryList } from './staff-inventory-list'
 import { StaffOrderCard } from './staff-order-card'
 
 const POLL_INTERVAL_MS = 4000
+
+type View = 'orders' | 'inventory'
 
 /**
  * Tablet-first per docs/BUILD-PLAN.md step 10 — `data-density="kiosk"` here
@@ -18,10 +23,13 @@ const POLL_INTERVAL_MS = 4000
 export function StaffDashboard({
   staffName,
   initialOrders,
+  initialMenuItems,
 }: {
   staffName: string
   initialOrders: StaffOrderView[]
+  initialMenuItems: MenuItem[]
 }) {
+  const [view, setView] = useState<View>('orders')
   const [orders, setOrders] = useState(initialOrders)
   const [search, setSearch] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -69,16 +77,16 @@ export function StaffDashboard({
   }
 
   return (
-    <div
+    <main
       data-density="kiosk"
       className="px-gutter mx-auto flex w-full flex-1 flex-col gap-4 py-6"
       style={{ maxInlineSize: 'var(--container-menu)' }}
     >
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-title">Orders</h1>
-        <div className="flex items-center gap-3">
-          <span className="text-body text-secondary">{staffName}</span>
-          <form action={staffLogoutAction}>
+        <h1 className="text-title">{view === 'orders' ? 'Orders' : 'Inventory'}</h1>
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="text-body text-secondary min-w-0 truncate">{staffName}</span>
+          <form action={staffLogoutAction} className="shrink-0">
             <Button type="submit" variant="secondary" size="sm">
               Sign out
             </Button>
@@ -86,33 +94,54 @@ export function StaffDashboard({
         </div>
       </div>
 
-      <input
-        type="text"
-        value={search}
-        onChange={(event) => handleSearchChange(event.target.value)}
-        placeholder="Search by pickup code"
-        aria-label="Search by pickup code"
-        className="border-hairline rounded-tile text-body border p-3"
-      />
+      <div role="radiogroup" aria-label="View" className="flex gap-2">
+        <Chip
+          label="Orders"
+          selectionRole="radio"
+          selected={view === 'orders'}
+          onClick={() => setView('orders')}
+        />
+        <Chip
+          label="Inventory"
+          selectionRole="radio"
+          selected={view === 'inventory'}
+          onClick={() => setView('inventory')}
+        />
+      </div>
 
-      {error ? <p className="text-danger-text text-small">{error}</p> : null}
+      {view === 'orders' ? (
+        <>
+          <input
+            type="text"
+            value={search}
+            onChange={(event) => handleSearchChange(event.target.value)}
+            placeholder="Search by pickup code"
+            aria-label="Search by pickup code"
+            className="border-hairline rounded-tile text-body border p-3"
+          />
 
-      {orders.length === 0 ? (
-        <p className="text-body text-secondary py-8 text-center">
-          {search.trim() ? 'No order found for that pickup code today.' : 'No live orders right now.'}
-        </p>
+          {error ? <p className="text-danger-text text-small">{error}</p> : null}
+
+          {orders.length === 0 ? (
+            <p className="text-body text-secondary py-8 text-center">
+              {search.trim() ? 'No order found for that pickup code today.' : 'No live orders right now.'}
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {orders.map((order) => (
+                <StaffOrderCard
+                  key={order.id}
+                  order={order}
+                  pending={pendingOrderId === order.id}
+                  onAction={(action, reason) => handleAction(order.id, action, reason)}
+                />
+              ))}
+            </ul>
+          )}
+        </>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {orders.map((order) => (
-            <StaffOrderCard
-              key={order.id}
-              order={order}
-              pending={pendingOrderId === order.id}
-              onAction={(action, reason) => handleAction(order.id, action, reason)}
-            />
-          ))}
-        </ul>
+        <StaffInventoryList initialItems={initialMenuItems} />
       )}
-    </div>
+    </main>
   )
 }

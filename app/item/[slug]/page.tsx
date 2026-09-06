@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { ItemContent } from '@/components/item/item-content'
-import { getMenuItem } from '@/lib/fixtures'
+import { getMenuItem } from '@/lib/menu-store'
 
 /**
  * Rendered on a cold load or hard refresh — the intercepted route in

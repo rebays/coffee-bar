@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { getMenuItem } from '@/lib/fixtures'
+import { getMenuItem } from '@/lib/menu-store'
 import type { ShopState } from '@/lib/types'
 
 import { RoastBar } from './roast-bar'

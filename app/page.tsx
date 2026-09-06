@@ -1,7 +1,7 @@
 import { Hero } from '@/components/menu/hero'
 import { MenuBody } from '@/components/menu/menu-body'
 import { StatusStrip } from '@/components/menu/status-strip'
-import { MENU } from '@/lib/fixtures'
+import { getMenuItems } from '@/lib/menu-store'
 import { getShopState } from '@/lib/shop-state'
 
 export default function Home() {
@@ -23,7 +23,7 @@ export default function Home() {
       <h1 className="sr-only">Menu</h1>
       <StatusStrip state={shopState} />
       <Hero state={shopState} />
-      <MenuBody items={MENU} orderingDisabled={!shopState.isOpen} />
+      <MenuBody items={getMenuItems()} orderingDisabled={!shopState.isOpen} />
     </main>
   )
 }

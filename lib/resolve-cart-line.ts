@@ -1,4 +1,5 @@
-import { getMenuItem, getOptionGroups } from './fixtures.ts'
+import { getOptionGroups } from './fixtures.ts'
+import { getMenuItem } from './menu-store.ts'
 import { addMoney, multiplyMoney } from './money.ts'
 import type { Money } from './money.ts'
 import type { MenuItem } from './types.ts'

@@ -1,5 +1,6 @@
 import { StaffDashboard } from '@/components/staff/staff-dashboard'
 import { StaffLoginForm } from '@/components/staff/staff-login-form'
+import { getMenuItems } from '@/lib/menu-store'
 import { listOrders } from '@/lib/orders/store'
 import { LIVE_STATES, toStaffOrderView } from '@/lib/orders/staff-view'
 import { getStaffSession } from '@/lib/staff-auth'
@@ -13,9 +14,16 @@ export default async function StaffPage() {
   }
 
   // Rendered server-side so the dashboard has something to show before its
-  // first poll, the same way OrderStatusPoller starts from a server-fetched
-  // `initial` rather than an empty state.
+  // first poll/fetch, the same way OrderStatusPoller starts from a
+  // server-fetched `initial` rather than an empty state.
   const initialOrders = listOrders({ states: LIVE_STATES }).map(toStaffOrderView)
+  const initialMenuItems = getMenuItems()
 
-  return <StaffDashboard staffName={session.staffName} initialOrders={initialOrders} />
+  return (
+    <StaffDashboard
+      staffName={session.staffName}
+      initialOrders={initialOrders}
+      initialMenuItems={initialMenuItems}
+    />
+  )
 }
