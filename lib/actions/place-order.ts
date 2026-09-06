@@ -3,7 +3,7 @@
 import { ensureDeviceToken } from '../device-token.ts'
 import { createOrder, setProviderRef, transitionOrder } from '../orders/store.ts'
 import type { OrderLine } from '../orders/types.ts'
-import { CounterProvider } from '../payments/counter.ts'
+import { getProvider } from '../payments/registry.ts'
 import { resolveCartLine } from '../resolve-cart-line.ts'
 import { SHOP_ID, getShopState } from '../shop-state.ts'
 
@@ -61,7 +61,7 @@ export async function placeOrderAction(
   const transitioned = transitionOrder(order.id, 'awaiting_payment', { type: 'system' })
   const current = transitioned.ok ? transitioned.order : order
 
-  const { providerRef } = await CounterProvider.initiate(current)
+  const { providerRef } = await getProvider('counter').initiate(current)
   setProviderRef(current.id, providerRef)
 
   return { ok: true, orderId: current.id }
