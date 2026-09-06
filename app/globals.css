@@ -1,0 +1,542 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Coffee Bar Menu — token layer
+   Design system: "Steel & Steam" v0.4
+   Tailwind CSS v4 · Next.js App Router
+
+   Three colours, three jobs, no overlap:
+     black — structure (chrome, text, cart bar, status strip)
+     cyan  — action, and only action (buttons, selected state, live, focus)
+     white — the page
+
+   Type: Bricolage Grotesque Variable — opsz 12–96, wdth 75–100, wght 200–800.
+   Axes are driven through standard CSS properties (font-weight, font-stretch,
+   font-optical-sizing), NOT font-variation-settings — see section 3.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Raw palette — fixed values, never referenced directly in components.
+   Components consume the semantic layer in section 2.
+   -------------------------------------------------------------------------- */
+@theme {
+  --color-slate-0: #ffffff;
+  --color-slate-50: #f6f6f6;
+  --color-slate-100: #ededed;
+  --color-slate-200: #dcdcdc;
+  --color-slate-300: #bfbfbf;
+  --color-slate-400: #9a9a9a;
+  --color-slate-500: #767676;
+  --color-slate-600: #5a5a5a;
+  --color-slate-700: #404040;
+  --color-slate-800: #262626;
+  --color-slate-900: #141414;
+  --color-slate-950: #0a0a0a;
+  --color-black: #000000;
+
+  /* Cyan exists at two stops for the same role. Bright cyan on white is ~1.9:1,
+     so light mode uses 600 and dark mode uses 300. Never cross them:
+     200-400 on white and 600-900 on black both fall below 3:1. */
+  --color-cyan-50: #e4f8fc;
+  --color-cyan-100: #bfeff8;
+  --color-cyan-200: #8ae1f2;
+  --color-cyan-300: #45cfe9;
+  --color-cyan-400: #12b5d4;
+  --color-cyan-500: #0093b0;
+  --color-cyan-600: #006c84;
+  --color-cyan-700: #045d72;
+  --color-cyan-900: #0a3a46;
+
+  --color-signal-50: #fcebe9;
+  --color-signal-500: #c7261a;
+  --color-signal-700: #a81f14;
+
+  /* Type ---------------------------------------------------------------- */
+  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+
+  /* Tracking runs slightly tighter than a neutral grotesque would want —
+     Bricolage sets a little loose by default at display sizes. */
+  --text-spec: 0.75rem;
+  --text-spec--line-height: 1rem;
+  --text-spec--letter-spacing: 0.02em;
+  --text-spec--font-weight: 500;
+
+  --text-note: 0.9375rem;
+  --text-note--line-height: 1.375rem;
+  --text-note--letter-spacing: 0.01em;
+  --text-note--font-weight: 350;
+
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.25rem;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+
+  /* Price rail figures — tabular-nums is inherited from body, so this role
+     only needs to set size and weight. */
+  --text-price: 1.125rem;
+  --text-price--line-height: 1.5rem;
+  --text-price--font-weight: 600;
+
+  --text-item: 1.25rem;
+  --text-item--line-height: 1.625rem;
+  --text-item--letter-spacing: -0.01em;
+  --text-item--font-weight: 600;
+
+  --text-section: 1.5rem;
+  --text-section--line-height: 1.75rem;
+  --text-section--letter-spacing: -0.015em;
+  --text-section--font-weight: 600;
+
+  --text-title: 2rem;
+  --text-title--line-height: 2.25rem;
+  --text-title--letter-spacing: -0.02em;
+  --text-title--font-weight: 700;
+
+  --text-metric: 2.75rem;
+  --text-metric--line-height: 2.75rem;
+  --text-metric--letter-spacing: -0.02em;
+  --text-metric--font-weight: 700;
+
+  --text-display: 3.5rem;
+  --text-display--line-height: 3.5rem;
+  --text-display--letter-spacing: -0.025em;
+  --text-display--font-weight: 700;
+
+  /* Geometry — encodes hierarchy: surfaces square, tiles crisp, controls round */
+  --radius-none: 0px;
+  --radius-tile: 3px;
+  --radius-sheet: 16px;
+  --radius-pill: 999px;
+
+  /* Elevation — neutral, never cyan. A coloured glow would make cyan mean
+     "decoration" as well as "action". */
+  --shadow-raise: 0 1px 2px rgb(0 0 0 / 0.08);
+  --shadow-float: 0 -2px 16px rgb(0 0 0 / 0.16);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Layout */
+  --spacing-gutter: 1rem;
+  --spacing-rail: 4.5rem; /* fixed price column */
+  --container-menu: 40rem;
+  --container-form: 32.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   2. Semantic layer — what components actually consume.
+   Plain custom properties so they can be re-pointed at runtime; exposed to
+   Tailwind via @theme inline below.
+   -------------------------------------------------------------------------- */
+:root {
+  --surface-ground: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f6f6f6;
+  --surface-structure: #000000; /* cart bar, status strip */
+
+  --content-primary: #000000;
+  --content-secondary: #5a5a5a;
+  --content-tertiary: #767676;
+  --content-muted: #9a9a9a;
+  --content-on-structure: #ffffff;
+  --content-on-accent: #ffffff;
+
+  --line-hairline: #dcdcdc;
+  --line-strong: #bfbfbf;
+
+  /* Disabled is a fill swap, never an opacity drop — opacity takes the text
+     below the contrast floor. Tag and skeleton share the same quiet step. */
+  --surface-disabled: #ededed; /* slate-100 */
+  --content-disabled: #9a9a9a; /* slate-400 */
+  --surface-tag: #ededed;
+  --surface-skeleton: #ededed;
+
+  --accent: #006c84;
+  --accent-hover: #0093b0;
+  --accent-active: #045d72;
+  --accent-subtle: #e4f8fc;
+  --accent-subtle-border: #bfeff8;
+  --accent-on-subtle: #0a3a46;
+
+  --danger: #c7261a;
+  --danger-on: #ffffff;
+  --danger-text: #a81f14;
+  --danger-subtle: #fcebe9;
+
+  --focus-ring: #006c84;
+
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 260ms;
+
+  /* Control heights. Kiosk mode overrides these, nothing else changes. */
+  --control-sm: 2.25rem;
+  --control-md: 2.75rem;
+  --control-lg: 3.25rem;
+  --tap-min: 2.75rem;
+}
+
+/* Dark mode: black ground, white ink, and cyan steps up to 300 so it stays
+   above 3:1. Text on accent inverts to black. Also the mode a wall board runs in. */
+[data-theme="dark"] {
+  --surface-ground: #000000;
+  --surface-raised: #141414;
+  --surface-sunken: #0a0a0a;
+  --surface-structure: #141414;
+
+  --content-primary: #ffffff;
+  --content-secondary: #bfbfbf;
+  --content-tertiary: #9a9a9a;
+  --content-muted: #767676;
+  --content-on-structure: #ffffff;
+  --content-on-accent: #000000;
+
+  --line-hairline: #262626;
+  --line-strong: #404040;
+
+  /* The quiet step inverts: slate-100 on black would read as a bright chip. */
+  --surface-disabled: #262626; /* slate-800 */
+  --content-disabled: #767676; /* slate-500 */
+  --surface-tag: #262626;
+  --surface-skeleton: #141414; /* slate-900 — matches the raised surface */
+
+  --accent: #45cfe9;
+  --accent-hover: #8ae1f2;
+  --accent-active: #12b5d4;
+  --accent-subtle: #0a3a46;
+  --accent-subtle-border: #045d72;
+  --accent-on-subtle: #bfeff8;
+
+  --danger: #e8574a;
+  --danger-on: #000000; /* white on the lightened fill is 3.6:1 */
+  --danger-text: #f09a91;
+  --danger-subtle: #3a120e;
+
+  --focus-ring: #45cfe9;
+}
+
+/* Kiosk: shared in-store device. Bigger targets, same everything else. */
+[data-density="kiosk"] {
+  --control-sm: 2.75rem;
+  --control-md: 3.5rem;
+  --control-lg: 4rem;
+  --tap-min: 3.5rem;
+}
+
+@theme inline {
+  --color-ground: var(--surface-ground);
+  --color-raised: var(--surface-raised);
+  --color-sunken: var(--surface-sunken);
+  --color-structure: var(--surface-structure);
+
+  --color-primary: var(--content-primary);
+  --color-secondary: var(--content-secondary);
+  --color-tertiary: var(--content-tertiary);
+  --color-muted: var(--content-muted);
+  --color-on-structure: var(--content-on-structure);
+  --color-on-accent: var(--content-on-accent);
+
+  --color-hairline: var(--line-hairline);
+  --color-line-strong: var(--line-strong);
+
+  --color-disabled: var(--surface-disabled);
+  --color-disabled-text: var(--content-disabled);
+  --color-tag: var(--surface-tag);
+  --color-skeleton: var(--surface-skeleton);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-subtle-border: var(--accent-subtle-border);
+  --color-on-accent-subtle: var(--accent-on-subtle);
+
+  --color-danger: var(--danger);
+  --color-on-danger: var(--danger-on);
+  --color-danger-text: var(--danger-text);
+  --color-danger-subtle: var(--danger-subtle);
+}
+
+/* --------------------------------------------------------------------------
+   3. Base
+   -------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--surface-ground);
+    color: var(--content-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+
+    /* Drives the opsz axis so the 12px spec line and the 56px display line are
+       genuinely different drawings, not one drawing scaled. This is the reason
+       the face was chosen, and it is silently disabled the moment anything in
+       the tree sets font-variation-settings — so nothing in this system does.
+       Rule: only reach for font-variation-settings for axes with no CSS
+       property of their own. Bricolage has none of those. */
+    font-optical-sizing: auto;
+    font-stretch: 100%;
+  }
+
+  /* Every numeral in the interface aligns. Prices in a column are unreadable
+     with proportional figures. */
+  body,
+  input,
+  button,
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The focus ring is cyan, and cyan already means interactive — so focus
+     reads correctly on both grounds without a second treatment. */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-tile);
+  }
+
+  ::selection {
+    background-color: var(--accent-subtle);
+    color: var(--accent-on-subtle);
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--line-hairline);
+  }
+
+  :root {
+    color-scheme: light;
+    accent-color: var(--accent);
+  }
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  /* Page gutter grows with viewport — 16px mobile, 24px ≥640px, 32px
+     ≥1024px. A plain custom property, so it cascades under the utility
+     classes that already reference it (p-gutter, px-gutter, …) without
+     redeclaring them per breakpoint. */
+  @media (min-width: 640px) {
+    :root {
+      --spacing-gutter: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    :root {
+      --spacing-gutter: 2rem;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Utilities
+   -------------------------------------------------------------------------- */
+@layer utilities {
+  /* Width goes down, never up — the axis caps at 100. Condense metadata to fit;
+     never expand a heading to emphasise it. */
+  .wdth-condensed {
+    font-stretch: 90%;
+  }
+  .wdth-tight {
+    font-stretch: 82%;
+  }
+  .wdth-normal {
+    font-stretch: 100%;
+  }
+
+  /* Tasting notes — replaces the italic treatment, since Bricolage ships
+     upright only. Weight 350 is the only sub-400 text in the system, which
+     makes it as distinct as an italic was. Never used for anything actionable. */
+  .tasting-note {
+    font-size: var(--text-note);
+    line-height: var(--text-note--line-height);
+    letter-spacing: var(--text-note--letter-spacing);
+    font-weight: 350;
+    color: var(--content-secondary);
+  }
+
+  /* Fixed price column so prices align down the menu list. */
+  .price-rail {
+    inline-size: var(--spacing-rail);
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    flex: none;
+  }
+
+  .tap-target {
+    min-inline-size: var(--tap-min);
+    min-block-size: var(--tap-min);
+  }
+
+  /* Chips and stepper segments draw at 40px but must be pressable at 44. The
+     hit area grows past the paint rather than the control growing, so the
+     visual spec and the touch floor both hold. */
+  .tap-expand {
+    position: relative;
+  }
+  .tap-expand::before {
+    content: "";
+    position: absolute;
+    inset: 50% 50%;
+    inline-size: max(100%, var(--tap-min));
+    block-size: max(100%, var(--tap-min));
+    translate: -50% -50%;
+  }
+
+  .safe-bottom {
+    padding-block-end: env(safe-area-inset-bottom, 0px);
+  }
+
+  .hairline-b {
+    border-block-end: 1px solid var(--line-hairline);
+  }
+
+  /* Horizontal category rail — scrollable without a visible bar. */
+  .rail-scroll {
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+  }
+  .rail-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .line-clamp-2-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. Roast indicator — a segment count in the current text colour. Cyan is
+   reserved for action, so roast can't borrow it; segments also survive
+   greyscale, which a coloured dot would not.
+   -------------------------------------------------------------------------- */
+@layer components {
+  .roast-bar {
+    display: inline-flex;
+    gap: 2px;
+    align-items: center;
+  }
+  .roast-bar i {
+    inline-size: 6px;
+    block-size: 12px;
+    border-radius: 1px;
+    border: 1px solid var(--content-tertiary);
+  }
+  .roast-bar i[data-on="true"] {
+    background: var(--content-tertiary);
+  }
+
+  /* The one orchestrated moment: add-to-cart confirmation. Nothing else in the
+     system animates on its own — and nothing ever animates font-stretch or
+     font-weight, which forces glyph re-rasterisation every frame. */
+  @keyframes count-swap {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    45% {
+      transform: translateY(-0.5em);
+      opacity: 0;
+    }
+    55% {
+      transform: translateY(0.5em);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes bar-rise {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .animate-count-swap {
+    animation: count-swap var(--dur-base) var(--ease-standard);
+  }
+
+  .animate-bar-rise {
+    animation: bar-rise var(--dur-slow) var(--ease-standard);
+  }
+
+  /* Item sheet entrance — motion answering the action of opening it, same
+     tokens as the cart bar's rise but its own keyframe since the two are
+     unrelated features that happen to share a shape. */
+  @keyframes sheet-rise {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes backdrop-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-sheet-rise {
+    animation: sheet-rise var(--dur-slow) var(--ease-standard);
+  }
+
+  .animate-backdrop-fade {
+    animation: backdrop-fade var(--dur-slow) var(--ease-standard);
+  }
+
+  /* Toast confirmation — answers the action just taken (add to order, place
+     order), so it earns motion under the same rule as the sheet's entrance. */
+  @keyframes toast-in {
+    from {
+      transform: translateY(4px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-toast-in {
+    animation: toast-in var(--dur-base) var(--ease-standard);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
