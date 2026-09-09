@@ -51,14 +51,23 @@ export function StaffOrderCard({
 
       <ul className="flex flex-col gap-1">
         {order.lines.map((line, index) => (
-          <li key={index} className="text-body flex items-baseline justify-between gap-4">
-            <span>
-              {line.quantity} × {line.name}
-              {line.customizations.length > 0 ? (
-                <span className="text-secondary"> ({line.customizations.join(', ')})</span>
-              ) : null}
-            </span>
-            <span className="text-price shrink-0">{formatSBD(line.lineTotal)}</span>
+          <li key={index} className="text-body flex flex-col gap-0.5">
+            <div className="flex items-baseline justify-between gap-4">
+              <span>
+                {line.quantity} × {line.name}
+                {line.customizations.length > 0 ? (
+                  <span className="text-secondary"> ({line.customizations.join(', ')})</span>
+                ) : null}
+              </span>
+              <span className="text-price shrink-0">{formatSBD(line.lineTotal)}</span>
+            </div>
+            {/* Bold, not quiet secondary text — this is an instruction a
+                barista must not miss, not decorative detail. Not signal-red
+                either: that's reserved for destructive actions and errors
+                (docs/DESIGN-SYSTEM.md §2), and a note isn't either. */}
+            {line.notes ? (
+              <p className="text-small text-primary font-semibold">Note: {line.notes}</p>
+            ) : null}
           </li>
         ))}
       </ul>

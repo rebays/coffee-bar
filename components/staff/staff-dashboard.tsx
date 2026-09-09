@@ -8,8 +8,10 @@ import { staffLogoutAction } from '@/lib/actions/staff-auth'
 import type { MenuItem } from '@/lib/types'
 import type { StaffAction, StaffOrderView } from '@/lib/orders/staff-view'
 
+import { StaffDemoModeToggle } from './staff-demo-mode-toggle'
 import { StaffInventoryList } from './staff-inventory-list'
 import { StaffOrderCard } from './staff-order-card'
+import { StaffStoreStatus } from './staff-store-status'
 
 const POLL_INTERVAL_MS = 4000
 
@@ -85,6 +87,9 @@ export function StaffDashboard({
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-title">{view === 'orders' ? 'Orders' : 'Inventory'}</h1>
         <div className="flex min-w-0 items-center gap-3">
+          <a href="/kitchen" className="text-accent text-body shrink-0 font-semibold">
+            Kitchen display
+          </a>
           <span className="text-body text-secondary min-w-0 truncate">{staffName}</span>
           <form action={staffLogoutAction} className="shrink-0">
             <Button type="submit" variant="secondary" size="sm">
@@ -93,6 +98,9 @@ export function StaffDashboard({
           </form>
         </div>
       </div>
+
+      <StaffStoreStatus />
+      <StaffDemoModeToggle />
 
       <div role="radiogroup" aria-label="View" className="flex gap-2">
         <Chip

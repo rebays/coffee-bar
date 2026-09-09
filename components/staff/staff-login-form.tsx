@@ -10,7 +10,12 @@ const ERROR_COPY: Record<string, string> = {
   invalid_passcode: "That passcode isn't right.",
 }
 
-export function StaffLoginForm() {
+/**
+ * Shared by every staff-gated page (/staff, /kitchen) — `returnTo` is what
+ * sends a successful sign-in back to whichever one rendered this form,
+ * instead of always landing on /staff regardless of where you started.
+ */
+export function StaffLoginForm({ returnTo = '/staff' }: { returnTo?: '/staff' | '/kitchen' }) {
   const [result, formAction, pending] = useActionState(staffLoginAction, null)
 
   return (
@@ -20,6 +25,7 @@ export function StaffLoginForm() {
     >
       <form action={formAction} className="flex flex-col gap-4 px-gutter py-8">
         <h1 className="text-title">Staff sign in</h1>
+        <input type="hidden" name="returnTo" value={returnTo} />
 
         <div className="flex flex-col gap-2">
           <label htmlFor="staffName" className="text-item">

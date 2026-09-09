@@ -1,16 +1,21 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { addToCart } from '@/lib/cart-store'
-import { getOptionGroups } from '@/lib/fixtures'
 import type { MenuItem } from '@/lib/types'
 
 /**
- * Quick-add with every group's default choice — tapping the name opens the
- * sheet for customizing instead. This is the one orchestrated moment: a
- * guaranteed 120ms cyan fill driven by a timer, not :active, so a fast tap
- * still reads as a deliberate confirmation rather than a mouse-press blip.
+ * An item with any option group (milk, sweetness, a side choice — anything
+ * to decide) opens the item sheet to choose it, same destination as tapping
+ * the row. Salads are the same even with zero option groups — the Notes
+ * field (dressing on the side, no croutons, …) only lives on the sheet, and
+ * for a salad that's worth reaching on the fast path, unlike a plain
+ * croissant. Every other zero-group item (sides, bakery/desserts)
+ * quick-adds directly: the one orchestrated moment, a guaranteed 120ms cyan
+ * fill driven by a timer, not :active, so a fast tap still reads as a
+ * deliberate confirmation rather than a mouse-press blip.
  */
 export function AddToCartButton({
   item,
@@ -19,13 +24,16 @@ export function AddToCartButton({
   item: MenuItem
   label: string
 }) {
+  const router = useRouter()
   const [justAdded, setJustAdded] = useState(false)
+  const hasOptions = item.optionGroupIds.length > 0 || item.category === 'salad'
 
   function handleAdd() {
-    const defaults = Object.fromEntries(
-      getOptionGroups(item).map((group) => [group.id, group.defaultChoiceId]),
-    )
-    addToCart(item.slug, defaults, 1)
+    if (hasOptions) {
+      router.push(`/item/${item.slug}`)
+      return
+    }
+    addToCart(item.slug, {}, 1)
     setJustAdded(true)
     setTimeout(() => setJustAdded(false), 120)
   }
@@ -34,7 +42,7 @@ export function AddToCartButton({
     <button
       type="button"
       onClick={handleAdd}
-      aria-label={label}
+      aria-label={hasOptions ? `Customize ${item.name}` : label}
       className={[
         'tap-expand inline-flex items-center justify-center rounded-full border',
         'transition-colors duration-(--dur-fast) ease-(--ease-standard)',

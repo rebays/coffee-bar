@@ -51,6 +51,20 @@
   --color-signal-500: #c7261a;
   --color-signal-700: #a81f14;
 
+  /* Green — a deliberate, narrow fourth colour, added by explicit product
+     decision for exactly one job: the store open/closed status badge on the
+     Home screen. Not a general-purpose colour; nothing else in the system
+     reaches for it. Same two-stop shape as cyan (a light-mode stop
+     contrast-checked on white, a dark-mode stop contrast-checked on black),
+     computed the same way: green-600 is 5.4:1 on white, green-300 is
+     12:1 on black. See docs/DESIGN-SYSTEM.md §2 for the full rationale. */
+  --color-green-50: #e6f7ec;
+  --color-green-100: #c3efd2;
+  --color-green-300: #4ade80;
+  --color-green-600: #0f7a3c;
+  --color-green-800: #166534;
+  --color-green-900: #0f3d1f;
+
   /* Type ---------------------------------------------------------------- */
   --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
 
@@ -124,6 +138,7 @@
   /* Layout */
   --spacing-gutter: 1rem;
   --spacing-rail: 4.5rem; /* fixed price column */
+  --spacing-category-rail: 4rem; /* left category sidebar, all breakpoints */
   --container-menu: 40rem;
   --container-form: 32.5rem;
 }
@@ -167,6 +182,13 @@
   --danger-on: #ffffff;
   --danger-text: #a81f14;
   --danger-subtle: #fcebe9;
+
+  /* Store-status "open" only — see the green ramp's comment above. */
+  --success: #0f7a3c;
+  --success-on: #ffffff;
+  --success-subtle: #e6f7ec;
+  --success-subtle-border: #c3efd2;
+  --success-on-subtle: #166534;
 
   --focus-ring: #006c84;
 
@@ -217,6 +239,12 @@
   --danger-text: #f09a91;
   --danger-subtle: #3a120e;
 
+  --success: #4ade80;
+  --success-on: #000000;
+  --success-subtle: #0f3d1f;
+  --success-subtle-border: #166534;
+  --success-on-subtle: #86efac;
+
   --focus-ring: #45cfe9;
 }
 
@@ -260,6 +288,12 @@
   --color-on-danger: var(--danger-on);
   --color-danger-text: var(--danger-text);
   --color-danger-subtle: var(--danger-subtle);
+
+  --color-success: var(--success);
+  --color-on-success: var(--success-on);
+  --color-success-subtle: var(--success-subtle);
+  --color-success-subtle-border: var(--success-subtle-border);
+  --color-on-success-subtle: var(--success-on-subtle);
 }
 
 /* --------------------------------------------------------------------------
@@ -420,6 +454,15 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* One-off, scoped to the Home screen's open-store badge only — not a
+     general elevation. The system otherwise deliberately has no coloured
+     shadows ("cyan glows would make cyan mean decoration as well as
+     action"); this is the explicit, narrow exception for the one green
+     status a customer should feel is "live" at a glance. */
+  .shadow-glow-open {
+    box-shadow: 0 0 16px 2px color-mix(in srgb, var(--success) 45%, transparent);
   }
 }
 

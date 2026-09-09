@@ -8,10 +8,10 @@ function validInput(overrides: Record<string, unknown> = {}) {
     name: 'Espresso tonic',
     description: 'A shot over tonic, built on ice.',
     spec: '1 shot · 250ml · tonic',
-    category: 'cold',
+    category: 'coffee',
     basePrice: 4200,
-    tags: ['Dairy free'],
-    optionGroupIds: ['size'],
+    tags: ['GF'],
+    optionGroupIds: [],
     ...overrides,
   }
 }
@@ -21,10 +21,10 @@ test('a fully valid input parses into the expected fields', () => {
   assert.equal(result.ok, true)
   if (!result.ok) return
   assert.equal(result.fields.name, 'Espresso tonic')
-  assert.equal(result.fields.category, 'cold')
+  assert.equal(result.fields.category, 'coffee')
   assert.equal(result.fields.basePrice, 4200)
-  assert.deepEqual(result.fields.tags, ['Dairy free'])
-  assert.deepEqual(result.fields.optionGroupIds, ['size'])
+  assert.deepEqual(result.fields.tags, ['GF'])
+  assert.deepEqual(result.fields.optionGroupIds, [])
   assert.equal(result.fields.isNew, false)
   assert.equal(result.fields.tastingNote, undefined)
   assert.equal(result.fields.roast, undefined)
@@ -67,7 +67,7 @@ test('tags and optionGroupIds must be string arrays; blank tags are dropped', ()
 })
 
 test('an unknown option group id is rejected rather than silently dropped', () => {
-  const result = parseMenuItemFields(validInput({ optionGroupIds: ['size', 'no-such-group'] }))
+  const result = parseMenuItemFields(validInput({ optionGroupIds: ['side-mains', 'no-such-group'] }))
   assert.equal(result.ok, false)
   if (!result.ok) assert.match(result.error, /no-such-group/)
 })

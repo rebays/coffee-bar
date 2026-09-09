@@ -2,14 +2,18 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
+import { MSelenProcessingOverlay } from '@/components/cart/mselen-processing-overlay'
 import { Button } from '@/components/ui/button'
 import { Stepper } from '@/components/ui/stepper'
 import { placeOrderAction } from '@/lib/actions/place-order'
 import { clearCart, getCartLines, removeLine, setLineQuantity, useCartSummary } from '@/lib/cart-store'
 import { formatSBD, formatSBDSpoken } from '@/lib/money'
 import { showToast } from '@/lib/toast-store'
+import type { ShopState } from '@/lib/types'
+
+type ShopStateResponse = ShopState & { demoMode: boolean }
 
 const ERROR_COPY: Record<string, string> = {
   empty_cart: 'Your order is empty.',
@@ -29,8 +33,32 @@ export default function CartPage() {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [idempotencyKey] = useState(() => crypto.randomUUID())
+  // Server-authoritative — lib/actions/place-order.ts rejects the submit
+  // either way, but this disables the button up front instead of only
+  // erroring after a tap. Not derived from the browser's own clock: that's
+  // trivially changeable client-side and this is what gates checkout.
+  const [shopState, setShopState] = useState<ShopStateResponse | null>(null)
+  // Set only for the simulated M-SELEN flow — while non-null, the overlay
+  // takes over the screen until the order's real state (confirmed
+  // server-side) leaves awaiting_payment. See mselen-processing-overlay.tsx.
+  const [processingOrderId, setProcessingOrderId] = useState<string | null>(null)
+  // A real push-payment flow needs the customer's own number before a
+  // prompt can be sent anywhere — cosmetic here (the demo provider doesn't
+  // actually dial anyone), but it's what makes tapping the button "send a
+  // request to this specific number" rather than a hardcoded placeholder.
+  const [mselenPhone, setMselenPhone] = useState('')
+  const mselenPhoneValid = mselenPhone.replace(/\D/g, '').length >= 7
 
-  async function handlePlaceOrder() {
+  useEffect(() => {
+    fetch('/api/shop-state', { cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : null))
+      .then(setShopState)
+      .catch(() => setShopState(null))
+  }, [])
+
+  const shopClosed = shopState !== null && !shopState.isOpen
+
+  async function submit(providerId: 'counter' | 'mselen') {
     setPending(true)
     setError(null)
 
@@ -38,8 +66,9 @@ export default function CartPage() {
       slug: line.slug,
       choices: line.choices,
       quantity: line.quantity,
+      notes: line.notes,
     }))
-    const result = await placeOrderAction(lines, idempotencyKey)
+    const result = await placeOrderAction(lines, idempotencyKey, providerId)
 
     if (!result.ok) {
       setError(ERROR_COPY[result.error] ?? 'Something went wrong placing your order.')
@@ -48,8 +77,22 @@ export default function CartPage() {
     }
 
     clearCart()
+    if (providerId === 'mselen') {
+      setProcessingOrderId(result.orderId)
+      return
+    }
     showToast('Order placed')
     router.push(`/order/${result.orderId}`)
+  }
+
+  if (processingOrderId) {
+    return (
+      <MSelenProcessingOverlay
+        orderId={processingOrderId}
+        phoneNumber={mselenPhone}
+        onConfirmed={() => router.push(`/order/${processingOrderId}`)}
+      />
+    )
   }
 
   if (resolved.length === 0) {
@@ -57,7 +100,7 @@ export default function CartPage() {
       <main className="px-gutter flex flex-1 flex-col items-center justify-center gap-3 text-center">
         <h1 className="sr-only">Your order</h1>
         <p className="text-body text-secondary">Nothing in your order yet.</p>
-        <Link href="/" className="text-accent text-body font-semibold">
+        <Link href="/menu" className="text-accent text-body font-semibold">
           Browse the menu
         </Link>
       </main>
@@ -71,7 +114,7 @@ export default function CartPage() {
     >
       <div className="px-gutter flex items-center gap-2 pt-4">
         <Link
-          href="/"
+          href="/menu"
           aria-label="Back to menu"
           className="tap-expand text-secondary inline-flex items-center justify-center rounded-full"
           style={{ inlineSize: '2.25rem', blockSize: '2.25rem' }}
@@ -89,6 +132,7 @@ export default function CartPage() {
               {customizations.length > 0 ? (
                 <p className="text-body text-secondary">{customizations.join(' · ')}</p>
               ) : null}
+              {line.notes ? <p className="tasting-note mt-1">“{line.notes}”</p> : null}
               <p className="text-spec wdth-condensed text-tertiary mt-1">
                 {formatSBD(unitPrice)} each
               </p>
@@ -109,18 +153,50 @@ export default function CartPage() {
       </ul>
 
       <div className="border-hairline bg-raised safe-bottom px-gutter sticky bottom-0 flex flex-col gap-3 border-t py-4">
-        {error ? <p className="text-danger-text text-small">{error}</p> : null}
+        {error ? (
+          <p className="text-danger-text text-small">{error}</p>
+        ) : shopClosed ? (
+          <p className="text-danger-text text-small">
+            {`The shop's closed right now — opens ${shopState!.opensAgainToday ? 'today' : 'tomorrow'} at ${shopState!.opensAt}.`}
+          </p>
+        ) : null}
         <div className="flex items-center justify-between">
           <span className="text-body text-secondary">
             {itemCount} {itemCount === 1 ? 'item' : 'items'}
           </span>
           <span className="text-price" aria-label={formatSBDSpoken(total)}>
-            {formatSBD(total)}
+            SBD {formatSBD(total)}
           </span>
         </div>
-        <Button size="lg" block disabled={pending} onClick={handlePlaceOrder}>
+        <Button size="lg" block disabled={pending || shopClosed} onClick={() => submit('counter')}>
           {pending ? 'Placing order…' : 'Place order'}
         </Button>
+        {shopState?.demoMode ? (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="mselen-phone" className="text-small text-secondary">
+              M-SELEN mobile number
+            </label>
+            <input
+              id="mselen-phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              placeholder="74XXXXX"
+              value={mselenPhone}
+              onChange={(event) => setMselenPhone(event.target.value)}
+              className="border-hairline rounded-tile text-body border p-3"
+            />
+            <Button
+              size="lg"
+              block
+              variant="secondary"
+              disabled={pending || shopClosed || !mselenPhoneValid}
+              onClick={() => submit('mselen')}
+            >
+              Pay with M-SELEN
+            </Button>
+          </div>
+        ) : null}
       </div>
     </main>
   )

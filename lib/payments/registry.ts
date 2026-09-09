@@ -1,5 +1,7 @@
+import { isDemoModeEnabled } from '../demo-mode-store.ts'
 import type { Order } from '../orders/types.ts'
 import { CounterProvider } from './counter.ts'
+import { DemoMSelenProvider } from './demo-mselen.ts'
 import type { PaymentProvider } from './provider.ts'
 
 /**
@@ -30,7 +32,14 @@ function defaultProviders(): Record<Order['providerId'], PaymentProvider> {
 
 const providers = defaultProviders()
 
+/**
+ * `mselen` resolves to the demo auto-confirming stand-in only while
+ * Presentation Demo Mode is on (checked live, not baked in at module load,
+ * since staff can toggle it at any time) — never for a real customer unless
+ * a staff member has deliberately switched it on for a presentation.
+ */
 export function getProvider(id: Order['providerId']): PaymentProvider {
+  if (id === 'mselen' && isDemoModeEnabled()) return DemoMSelenProvider
   return providers[id]
 }
 

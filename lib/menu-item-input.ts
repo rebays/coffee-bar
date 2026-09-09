@@ -1,5 +1,6 @@
 import { OPTION_GROUPS } from './fixtures.ts'
 import { isMoney } from './money.ts'
+import { CATEGORIES } from './types.ts'
 import type { Category, MenuItem, RoastLevel } from './types.ts'
 
 /**
@@ -11,7 +12,7 @@ import type { Category, MenuItem, RoastLevel } from './types.ts'
  */
 export type MenuItemFields = Omit<MenuItem, 'slug' | 'soldOut'>
 
-const CATEGORY_VALUES: readonly Category[] = ['espresso', 'filter', 'cold', 'other', 'food']
+const CATEGORY_VALUES: readonly Category[] = CATEGORIES.map((category) => category.id)
 const ROAST_VALUES: readonly RoastLevel[] = ['light', 'medium', 'dark']
 
 export type ParseResult =

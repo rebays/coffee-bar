@@ -29,14 +29,18 @@ export function CartBar() {
   // on any /item/* route — the sheet's backdrop would cover it anyway, and
   // on the standalone item page it would otherwise overlap that page's own
   // sticky "Add to order" footer, since both anchor to the viewport bottom.
-  if (pathname === '/cart' || pathname?.startsWith('/item/') || itemCount === 0) return null
+  // Also suppressed on / — the pre-menu service-type gate, not a browsing
+  // surface, so there's nothing here to shortcut back to yet.
+  if (pathname === '/cart' || pathname === '/' || pathname?.startsWith('/item/') || itemCount === 0) {
+    return null
+  }
 
   return (
     <Link
       href="/cart"
       aria-label={`${itemCount} ${itemCount === 1 ? 'item' : 'items'} in your order, total ${formatSBDSpoken(total)}`}
       className={[
-        'bg-structure text-on-structure safe-bottom shadow-float px-gutter',
+        'bg-structure text-on-structure safe-bottom shadow-float px-gutter print:hidden',
         'fixed inset-x-0 bottom-0 z-20 flex items-center justify-between',
         justRose ? 'animate-bar-rise' : '',
       ]
@@ -45,12 +49,10 @@ export function CartBar() {
       style={{ blockSize: '4rem' }}
     >
       <span key={itemCount} className="animate-count-swap text-body inline-block font-semibold">
-        {itemCount} {itemCount === 1 ? 'item' : 'items'}
+        {itemCount} {itemCount === 1 ? 'item' : 'items'} <span aria-hidden="true">•</span> SBD{' '}
+        {formatSBD(total)}
       </span>
-      <span className="flex items-center gap-1">
-        <span className="text-price">{formatSBD(total)}</span>
-        <ChevronIcon />
-      </span>
+      <ChevronIcon />
     </Link>
   )
 }

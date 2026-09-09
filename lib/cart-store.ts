@@ -8,21 +8,26 @@ import { resolveCartLine } from './resolve-cart-line.ts'
 import type { MenuItem } from './types.ts'
 
 /**
- * A line is an item slug plus resolved option choices plus quantity.
- * Identical configurations merge into one line rather than duplicating —
- * `lineKey` is the merge key, order-independent so group iteration order
- * never splits an otherwise-identical line in two.
+ * A line is an item slug plus resolved option choices plus quantity, plus an
+ * optional free-text note. Identical configurations merge into one line
+ * rather than duplicating — `lineKey` is the merge key, order-independent so
+ * group iteration order never splits an otherwise-identical line in two.
+ * Notes are part of that key: two lines that are otherwise identical but
+ * carry different notes must stay separate, or one customer's note silently
+ * overwrites another's when the quantities merge.
  */
 export type CartLine = {
   id: string
   slug: string
   choices: Record<string, string>
   quantity: number
+  notes?: string
 }
 
-function lineKey(slug: string, choices: Record<string, string>): string {
+function lineKey(slug: string, choices: Record<string, string>, notes?: string): string {
   const sorted = Object.entries(choices).sort(([a], [b]) => a.localeCompare(b))
-  return `${slug}::${sorted.map(([groupId, choiceId]) => `${groupId}=${choiceId}`).join(',')}`
+  const choicesKey = sorted.map(([groupId, choiceId]) => `${groupId}=${choiceId}`).join(',')
+  return `${slug}::${choicesKey}::note=${notes ?? ''}`
 }
 
 type Listener = () => void
@@ -52,15 +57,21 @@ function getServerSnapshot(): CartLine[] {
   return EMPTY_LINES
 }
 
-/** Merges into an existing line of the same configuration, or appends a new one. */
-export function addToCart(slug: string, choices: Record<string, string>, quantity = 1): void {
-  const id = lineKey(slug, choices)
+/** Merges into an existing line of the same configuration and notes, or appends a new one. */
+export function addToCart(
+  slug: string,
+  choices: Record<string, string>,
+  quantity = 1,
+  notes?: string,
+): void {
+  const trimmedNotes = notes?.trim() || undefined
+  const id = lineKey(slug, choices, trimmedNotes)
   const existing = lines.find((line) => line.id === id)
   lines = existing
     ? lines.map((line) =>
         line.id === id ? { ...line, quantity: line.quantity + quantity } : line,
       )
-    : [...lines, { id, slug, choices, quantity }]
+    : [...lines, { id, slug, choices, quantity, notes: trimmedNotes }]
   emit()
 }
 

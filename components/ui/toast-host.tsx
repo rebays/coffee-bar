@@ -14,7 +14,7 @@ export function ToastHost() {
     <div
       aria-live="polite"
       role="status"
-      className="px-gutter pointer-events-none fixed inset-x-0 z-40 flex justify-center"
+      className="px-gutter pointer-events-none fixed inset-x-0 z-40 flex justify-center print:hidden"
       style={{ bottom: 'calc(4rem + 12px + env(safe-area-inset-bottom, 0px))' }}
     >
       {toast ? (

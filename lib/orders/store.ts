@@ -155,6 +155,8 @@ export type OrderListFilter = {
   states?: readonly OrderState[]
   /** Case-insensitive — pickup codes are already uppercase, but staff typing isn't. */
   pickupCode?: string
+  /** Scopes to one customer's order history — the same anonymous identity from lib/device-token.ts. */
+  deviceToken?: string
 }
 
 /**
@@ -173,6 +175,7 @@ export function listOrders(filter: OrderListFilter = {}): Order[] {
     .map(expireIfStale)
     .filter((order) => (filter.states ? filter.states.includes(order.state) : true))
     .filter((order) => (code ? order.pickupCode === code : true))
+    .filter((order) => (filter.deviceToken ? order.deviceToken === filter.deviceToken : true))
 }
 
 /**
