@@ -23,10 +23,10 @@ function fields(overrides: Partial<MenuItemFields> = {}): MenuItemFields {
     name: 'Espresso tonic',
     description: 'A shot over tonic, built on ice.',
     spec: '1 shot · 250ml · tonic',
-    category: 'cold',
+    category: 'coffee',
     basePrice: 4200,
-    tags: ['Dairy free'],
-    optionGroupIds: ['size'],
+    tags: ['GF'],
+    optionGroupIds: [],
     ...overrides,
   }
 }
@@ -38,7 +38,7 @@ test('getMenuItems starts seeded from the fixtures, in fixture order', () => {
 })
 
 test('getMenuItem finds by slug and returns undefined otherwise', () => {
-  assert.equal(getMenuItem('flat-white')?.name, 'Flat white')
+  assert.equal(getMenuItem('flat-white')?.name, 'Flat White')
   assert.equal(getMenuItem('does-not-exist'), undefined)
 })
 
@@ -58,10 +58,6 @@ test('setSoldOut flips the flag without touching the fixture or other fields', (
 
 test('setSoldOut on an unknown slug is a no-op that returns undefined', () => {
   assert.equal(setSoldOut('does-not-exist', true), undefined)
-})
-
-test('an item already sold out in fixtures starts that way', () => {
-  assert.equal(getMenuItem('filter-png-sigri')?.soldOut, true)
 })
 
 test('__resetMenuStoreForTests clears any toggles made since', () => {
@@ -86,25 +82,25 @@ test('createMenuItem dedupes a colliding slug', () => {
 })
 
 test('a new item starts available and lands at the end of its category block', () => {
-  const item = createMenuItem(fields({ category: 'espresso' }))
+  const item = createMenuItem(fields({ category: 'coffee' }))
   assert.equal(item.soldOut, false)
 
-  const espressoSlugs = getMenuItems()
-    .filter((menuItem) => menuItem.category === 'espresso')
+  const coffeeSlugs = getMenuItems()
+    .filter((menuItem) => menuItem.category === 'coffee')
     .map((menuItem) => menuItem.slug)
-  assert.equal(espressoSlugs.at(-1), item.slug)
+  assert.equal(coffeeSlugs.at(-1), item.slug)
 })
 
 test('a new item in a category placed correctly relative to other categories', () => {
-  const item = createMenuItem(fields({ category: 'cold' }))
+  const item = createMenuItem(fields({ category: 'coffee' }))
   const slugs = getMenuItems().map((menuItem) => menuItem.slug)
-  const coldSlugs = MENU.filter((m) => m.category === 'cold').map((m) => m.slug)
-  const lastColdIndex = slugs.indexOf(coldSlugs.at(-1)!)
-  const notCoffeeFirstIndex = slugs.indexOf(MENU.find((m) => m.category === 'other')!.slug)
+  const coffeeSlugs = MENU.filter((m) => m.category === 'coffee').map((m) => m.slug)
+  const lastCoffeeIndex = slugs.indexOf(coffeeSlugs.at(-1)!)
+  const teaFirstIndex = slugs.indexOf(MENU.find((m) => m.category === 'tea-refreshers')!.slug)
 
   const newIndex = slugs.indexOf(item.slug)
-  assert.ok(newIndex > lastColdIndex, 'sits after the last existing cold item')
-  assert.ok(newIndex < notCoffeeFirstIndex, 'sits before the next category')
+  assert.ok(newIndex > lastCoffeeIndex, 'sits after the last existing coffee item')
+  assert.ok(newIndex < teaFirstIndex, 'sits before the next category')
 })
 
 test('updateMenuItem replaces every editable field but preserves slug and soldOut', () => {
@@ -122,12 +118,12 @@ test('updateMenuItem on an unknown slug is a no-op that returns undefined', () =
 })
 
 test('updateMenuItem repositions the item when its category changes', () => {
-  updateMenuItem('flat-white', fields({ category: 'food' }))
+  updateMenuItem('flat-white', fields({ category: 'bakery-desserts' }))
   const slugs = getMenuItems().map((item) => item.slug)
-  const foodSlugs = MENU.filter((m) => m.category === 'food').map((m) => m.slug)
+  const bakerySlugs = MENU.filter((m) => m.category === 'bakery-desserts').map((m) => m.slug)
 
   assert.ok(
-    slugs.indexOf('flat-white') > slugs.indexOf(foodSlugs.at(-1)!),
+    slugs.indexOf('flat-white') > slugs.indexOf(bakerySlugs.at(-1)!),
     'moved item lands at the end of its new category block',
   )
 })
@@ -146,13 +142,13 @@ test('deleteMenuItem on an unknown slug returns false and changes nothing', () =
 
 test('reorderMenuItem swaps with its neighbour within the same category', () => {
   const before = getMenuItems()
-    .filter((item) => item.category === 'espresso')
+    .filter((item) => item.category === 'coffee')
     .map((item) => item.slug)
 
   reorderMenuItem(before[1], 'up')
 
   const after = getMenuItems()
-    .filter((item) => item.category === 'espresso')
+    .filter((item) => item.category === 'coffee')
     .map((item) => item.slug)
 
   assert.equal(after[0], before[1])
@@ -160,16 +156,16 @@ test('reorderMenuItem swaps with its neighbour within the same category', () => 
 })
 
 test('reorderMenuItem is a no-op at the edge of its category block', () => {
-  const espressoSlugs = getMenuItems()
-    .filter((item) => item.category === 'espresso')
+  const coffeeSlugs = getMenuItems()
+    .filter((item) => item.category === 'coffee')
     .map((item) => item.slug)
 
   const beforeAll = getMenuItems().map((item) => item.slug)
-  reorderMenuItem(espressoSlugs[0], 'up') // already first in its category
+  reorderMenuItem(coffeeSlugs[0], 'up') // already first in its category
   assert.deepEqual(getMenuItems().map((item) => item.slug), beforeAll)
 
-  const lastEspresso = espressoSlugs.at(-1)!
-  reorderMenuItem(lastEspresso, 'down') // would cross into the next category
+  const lastCoffee = coffeeSlugs.at(-1)!
+  reorderMenuItem(lastCoffee, 'down') // would cross into the next category
   assert.deepEqual(getMenuItems().map((item) => item.slug), beforeAll)
 })
 

@@ -95,6 +95,30 @@ pairings fall below 3:1 and are the one way this palette breaks. Worth a lint ru
 Reserved for destructive actions and validation errors. Sold-out is **not** signal —
 it's `slate-400` plus a strikethrough on the price.
 
+### Green — a fourth colour, by deliberate exception
+
+| Token | Hex | Use |
+|---|---|---|
+| `green-50` | `#E6F7EC` | Subtle fill (light) |
+| `green-100` | `#C3EFD2` | Subtle border (light) |
+| `green-300` | `#4ADE80` | **Success (dark mode)** — 12.1:1 on black, takes black text |
+| `green-600` | `#0F7A3C` | **Success (light mode)** — 5.4:1 on white, takes white text |
+| `green-800` | `#166534` | Text on `green-50` |
+| `green-900` | `#0F3D1F` | Subtle fill (dark) |
+
+The direction's whole premise is "three colours, three jobs" — this is the one
+place that's no longer true, added by explicit product decision for exactly one
+job: **the store open/closed status badge**, nowhere else. It follows cyan's own
+two-stop shape (a light-mode stop checked against white, a dark-mode stop checked
+against black) rather than inventing a new method. Closed reuses `signal` as-is —
+no new red was needed, only green. Never reach for green for anything else; if
+another feature seems to want it, that's a new instance of the same question
+CLAUDE.md already asks about a fourth colour, not a precedent this one answers.
+
+The open badge alone also breaks the "no coloured shadows" rule in §5, with a soft
+`color-mix(in srgb, var(--success) 45%, transparent)` glow — again scoped to that
+one badge via `.shadow-glow-open`, not a general elevation option.
+
 ### The two themes
 
 | | Light | Dark |
@@ -179,9 +203,12 @@ for anything a customer has to act on — descriptive text only.
   unreadable with proportional figures.
 - Item name at 600 against description at 400 is the whole hierarchy inside a row.
   Don't add colour or size to reinforce it — colour is spoken for.
-- Sentence case throughout. No all-caps labels, including tags and section headers.
-- Body copy caps at 68 characters. Descriptions clamp to 2 lines in the list; full text
-  lives in the item sheet.
+- Sentence case throughout. No all-caps labels, including tags and section headers —
+  except the standard dietary abbreviations **V / VG / GF**, which read as acronyms
+  everyone already recognises from menus generally, not as emphasis-via-shouting.
+- Body copy is written to read compactly, but the real enforcement is the list row's
+  2-line clamp, not a fixed character count — a longer description is still fine; it
+  clamps in the list and shows in full in the item sheet.
 - Weight 200 and 800 are available but unused. If a future need appears, 800 goes to
   the wall-board display size and nothing else.
 
@@ -252,7 +279,9 @@ Two elevations, neutral:
 - `shadow-float` — `0 -2px 16px rgb(0 0 0 / .16)` — cart bar and open sheets only.
 
 Everything else separates with a `1px slate-200` hairline. No cyan glows — a coloured
-shadow would make cyan mean "decoration" as well as "action."
+shadow would make cyan mean "decoration" as well as "action." The one exception is
+`.shadow-glow-open`, a green glow on the Home screen's open-store badge only — see
+§2's green ramp for why that badge gets to break both this rule and the palette.
 
 ---
 
@@ -274,6 +303,12 @@ stagger.
 slides up from below if this is the first item. Never animate `font-stretch` or
 `font-weight` — variable-axis animation forces glyph re-rasterisation every frame and
 janks on mid-range phones.
+
+This only plays on a zero-option item (sides, bakery/desserts), where `[+]` really
+does add straight to the cart. Anything with a choice to make — milk, sweetness, a
+side — routes `[+]` to the item sheet instead, same destination as tapping the row;
+the sheet's own **Add to order** is where the add (and this animation) actually
+happens.
 
 `prefers-reduced-motion: reduce` collapses all durations to 0.01ms and replaces the
 count swap with an instant value change.

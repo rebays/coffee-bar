@@ -7,6 +7,10 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { startReconcilerLoop } = await import('./lib/payments/reconciler')
-    startReconcilerLoop()
+    // 1.5s rather than the 30s default: cheap for CounterProvider either way
+    // (docs/PAYMENTS.md §7.2), and it's what makes the simulated M-SELEN
+    // flow's ~3s auto-confirm (lib/payments/demo-mselen.ts) actually land
+    // close to 3s instead of up to 30s late.
+    startReconcilerLoop(1500)
   }
 }

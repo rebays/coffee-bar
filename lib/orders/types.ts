@@ -30,6 +30,18 @@ export type OrderLine = {
   quantity: number
   unitPrice: Money
   lineTotal: Money
+  /**
+   * Raw option-group choice ids this line was placed with, e.g.
+   * `{ size: 'large', milk: 'oat' }` — kept alongside `customizations` (the
+   * display strings) so a reorder can hand these straight to
+   * `resolveCartLine`/`addToCart` and reconstruct the exact configuration.
+   * Optional because it postdates the type: orders created before reorder
+   * existed have no way to recover it, and best-effort reordering those
+   * without it is fine.
+   */
+  choices?: Record<string, string>
+  /** Free-text instructions the customer typed on the item sheet, e.g. "no foam". */
+  notes?: string
 }
 
 export type Order = {

@@ -1,6 +1,14 @@
 import type { Money } from './money.ts'
 
-export type Category = 'espresso' | 'filter' | 'cold' | 'other' | 'food'
+export type Category =
+  | 'best-sellers'
+  | 'coffee'
+  | 'tea-refreshers'
+  | 'mains'
+  | 'sandwich'
+  | 'salad'
+  | 'sides'
+  | 'bakery-desserts'
 
 export type RoastLevel = 'light' | 'medium' | 'dark'
 
@@ -11,12 +19,16 @@ export const ROAST_SEGMENTS: Record<RoastLevel, number> = {
   dark: 3,
 }
 
+/** The shop's category taxonomy — order here is the menu's own order. */
 export const CATEGORIES: ReadonlyArray<{ id: Category; label: string }> = [
-  { id: 'espresso', label: 'Espresso' },
-  { id: 'filter', label: 'Filter' },
-  { id: 'cold', label: 'Cold' },
-  { id: 'other', label: 'Not coffee' },
-  { id: 'food', label: 'Food' },
+  { id: 'best-sellers', label: 'Best Sellers' },
+  { id: 'coffee', label: 'Coffee' },
+  { id: 'tea-refreshers', label: 'Tea & Refreshers' },
+  { id: 'mains', label: 'Mains' },
+  { id: 'sandwich', label: 'Sandwich' },
+  { id: 'salad', label: 'Salad' },
+  { id: 'sides', label: 'Sides' },
+  { id: 'bakery-desserts', label: 'Bakery & Desserts' },
 ]
 
 export type OptionChoice = {
@@ -32,6 +44,14 @@ export type OptionGroup = {
   required: boolean
   choices: OptionChoice[]
   defaultChoiceId: string
+  /**
+   * Show this group's choice in the cart/order summary even when it's the
+   * default — e.g. sweetness, where "100% Sugar" is order-relevant
+   * information a barista needs stated every time, unlike milk defaulting
+   * silently to "whole." Omitted (falsy) keeps the usual behaviour: only a
+   * non-default choice surfaces as a customization.
+   */
+  alwaysShow?: boolean
 }
 
 export type MenuItem = {
@@ -55,14 +75,14 @@ export type MenuItem = {
   imageUrl?: string
 }
 
-/** Live shop state for the hero and status strip. Stubbed in `shop-state.ts`. */
+/** Live shop state for the status strip. Computed in `shop-state.ts`. */
 export type ShopState = {
   isOpen: boolean
-  /** "4pm" — the hour the strip reads when open. */
+  /** "4:30 PM" — meaningful while open. */
   closesAt: string
-  /** "6:30am" — the hour the strip reads when closed. */
+  /** "7:00 AM" — meaningful while closed. */
   opensAt: string
+  /** While closed: does the shop open again later today, or tomorrow? */
+  opensAgainToday: boolean
   waitMinutes: number
-  /** Slug of the item on filter today, resolved against the menu. */
-  filterTodaySlug: string
 }

@@ -3,6 +3,7 @@ import { Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 
 import { CartBar } from "@/components/cart/cart-bar";
+import { RecentOrdersLauncher } from "@/components/order/recent-orders-launcher";
 import { ToastHost } from "@/components/ui/toast-host";
 
 const bricolage = Bricolage_Grotesque({
@@ -23,6 +24,7 @@ export default function RootLayout({ children, sheet }: LayoutProps<"/">) {
         {children}
         {sheet}
         <CartBar />
+        <RecentOrdersLauncher />
         <ToastHost />
       </body>
     </html>

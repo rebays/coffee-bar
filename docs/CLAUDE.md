@@ -46,7 +46,7 @@ app/
   staff/page.tsx          staff surface (auth required)
 components/
   ui/                     button, chip, stepper, tag, sheet, skeleton
-  menu/                   menu-row, category-rail, hero, status-strip
+  menu/                   menu-row, category-sidebar, hero, status-strip
   cart/                   cart-bar, cart-list
 lib/
   types.ts

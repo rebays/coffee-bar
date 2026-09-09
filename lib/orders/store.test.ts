@@ -265,6 +265,17 @@ test('listOrders finds by pickup code regardless of case, across any state', () 
   assert.deepEqual(found.map((o) => o.id), [order.id])
 })
 
+test('listOrders filters by deviceToken, scoping order history to one customer', () => {
+  const mine = createOrder(sampleInput({ deviceToken: 'device-1' }), 'idem-mine', CUSTOMER)
+  createOrder(sampleInput({ deviceToken: 'device-2' }), 'idem-theirs', {
+    type: 'customer',
+    deviceToken: 'device-2',
+  })
+
+  const found = listOrders({ deviceToken: 'device-1' })
+  assert.deepEqual(found.map((o) => o.id), [mine.id])
+})
+
 test('listOrders with no filter returns every order, including terminal ones', () => {
   const a = createOrder(sampleInput(), 'idem-a', CUSTOMER)
   createOrder(sampleInput(), 'idem-b', CUSTOMER)

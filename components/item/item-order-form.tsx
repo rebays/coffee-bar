@@ -29,9 +29,6 @@ export function ItemOrderForm({ item }: { item: MenuItem }) {
     Object.fromEntries(groups.map((group) => [group.id, group.defaultChoiceId])),
   )
   const [quantity, setQuantity] = useState(1)
-  // Not yet part of the cart line — a line is slug + choices + quantity per
-  // the cart model, with no field for notes. Kept as local UI state until
-  // order placement defines where free-text instructions actually live.
   const [notes, setNotes] = useState('')
 
   const unitPrice = useMemo(() => {
@@ -45,7 +42,7 @@ export function ItemOrderForm({ item }: { item: MenuItem }) {
   const total = multiplyMoney(unitPrice, quantity)
 
   function handleAdd() {
-    addToCart(item.slug, selected, quantity)
+    addToCart(item.slug, selected, quantity, notes)
     showToast('Added to order')
     // On the standalone page this is a no-op (the default context value),
     // leaving the customer on the page they may have deep-linked to on

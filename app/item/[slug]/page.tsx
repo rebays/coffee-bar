@@ -20,7 +20,7 @@ export default async function ItemPage(props: PageProps<'/item/[slug]'>) {
       style={{ maxInlineSize: 'var(--container-form)' }}
     >
       <div className="px-gutter pt-4">
-        <Link href="/" className="text-small text-secondary inline-flex items-center gap-1">
+        <Link href="/menu" className="text-small text-secondary inline-flex items-center gap-1">
           <BackArrow /> Menu
         </Link>
       </div>

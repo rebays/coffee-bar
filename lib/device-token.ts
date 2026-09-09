@@ -31,3 +31,15 @@ export async function ensureDeviceToken(): Promise<string> {
   })
   return token
 }
+
+/**
+ * Read-only — safe to call from a Server Component render, unlike
+ * `ensureDeviceToken`, because it never sets the cookie. Returns undefined
+ * for a visitor who has never placed an order, which order history reads as
+ * "no orders yet" rather than minting them an identity just to look at a
+ * list.
+ */
+export async function peekDeviceToken(): Promise<string | undefined> {
+  const store = await cookies()
+  return store.get(COOKIE_NAME)?.value
+}

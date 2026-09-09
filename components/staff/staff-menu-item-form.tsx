@@ -47,7 +47,7 @@ function toFormValues(item: MenuItem | undefined): FormValues {
     name: item?.name ?? '',
     description: item?.description ?? '',
     spec: item?.spec ?? '',
-    category: item?.category ?? 'espresso',
+    category: item?.category ?? 'coffee',
     priceText: item ? formatSBD(item.basePrice, { symbol: false }) : '',
     tags: item?.tags.join(', ') ?? '',
     optionGroupIds: item?.optionGroupIds ?? [],

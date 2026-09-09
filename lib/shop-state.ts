@@ -1,3 +1,5 @@
+import { evaluateStoreSchedule } from './shop-hours.ts'
+import { getStoreOverride } from './shop-override-store.ts'
 import type { ShopState } from './types.ts'
 
 /**
@@ -15,16 +17,24 @@ export const SHOP_ID = 'honiara'
 export const START_MAKING_BEFORE_PAYMENT = false
 
 /**
- * Stubbed live shop state per build plan step 5. The hero and status strip
- * read only this shape, so swapping in a real clock/queue signal later is a
- * one-function change with no callers to touch.
+ * Live shop state, read by the status strip and — the part that actually
+ * matters — lib/actions/place-order.ts's server-side rejection of an order
+ * placed while closed. `isOpen` here is the schedule in lib/shop-hours.ts,
+ * unless staff have set a manual override (lib/shop-override-store.ts) to
+ * force it either way. `waitMinutes` stays stubbed per build plan step 5 —
+ * a real queue signal is a separate feature from operating hours.
  */
 export function getShopState(): ShopState {
+  const schedule = evaluateStoreSchedule()
+  const override = getStoreOverride()
+  const isOpen =
+    override === 'FORCE_OPEN' ? true : override === 'FORCE_CLOSED' ? false : schedule.isOpen
+
   return {
-    isOpen: true,
-    closesAt: '4pm',
-    opensAt: '6:30am',
+    isOpen,
+    closesAt: schedule.closesAtLabel,
+    opensAt: schedule.opensAtLabel,
+    opensAgainToday: schedule.opensAgainToday,
     waitMinutes: 6,
-    filterTodaySlug: 'filter-kenya-kiambu',
   }
 }

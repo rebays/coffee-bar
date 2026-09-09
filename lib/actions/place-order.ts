@@ -1,8 +1,9 @@
 'use server'
 
 import { ensureDeviceToken } from '../device-token.ts'
+import { isDemoModeEnabled } from '../demo-mode-store.ts'
 import { createOrder, setProviderRef, transitionOrder } from '../orders/store.ts'
-import type { OrderLine } from '../orders/types.ts'
+import type { Order, OrderLine } from '../orders/types.ts'
 import { getProvider } from '../payments/registry.ts'
 import { resolveCartLine } from '../resolve-cart-line.ts'
 import { SHOP_ID, getShopState } from '../shop-state.ts'
@@ -11,6 +12,7 @@ export type PlaceOrderLineInput = {
   slug: string
   choices: Record<string, string>
   quantity: number
+  notes?: string
 }
 
 export type PlaceOrderResult =
@@ -27,13 +29,22 @@ export type PlaceOrderResult =
  * `idempotencyKey` is client-generated and must be the same value across a
  * retry of the same submission attempt — createOrder is what actually
  * enforces that a retry produces one order, not this function.
+ *
+ * `requestedProviderId` is the customer's choice, but never trusted blindly:
+ * `mselen` only actually applies while Presentation Demo Mode is on
+ * server-side (lib/demo-mode-store.ts) — a client claiming otherwise falls
+ * back to `counter`, the same as if nothing had been requested at all.
  */
 export async function placeOrderAction(
   lines: PlaceOrderLineInput[],
   idempotencyKey: string,
+  requestedProviderId: Order['providerId'] = 'counter',
 ): Promise<PlaceOrderResult> {
   if (lines.length === 0) return { ok: false, error: 'empty_cart' }
   if (!getShopState().isOpen) return { ok: false, error: 'shop_closed' }
+
+  const providerId: Order['providerId'] =
+    requestedProviderId === 'mselen' && isDemoModeEnabled() ? 'mselen' : 'counter'
 
   const orderLines: OrderLine[] = []
   for (const line of lines) {
@@ -47,6 +58,8 @@ export async function placeOrderAction(
       quantity: line.quantity,
       unitPrice: resolved.unitPrice,
       lineTotal: resolved.lineTotal,
+      choices: line.choices,
+      ...(line.notes ? { notes: line.notes } : {}),
     })
   }
   if (orderLines.length === 0) return { ok: false, error: 'no_valid_lines' }
@@ -54,7 +67,7 @@ export async function placeOrderAction(
   const deviceToken = await ensureDeviceToken()
 
   const order = createOrder(
-    { shopId: SHOP_ID, lines: orderLines, providerId: 'counter', deviceToken },
+    { shopId: SHOP_ID, lines: orderLines, providerId, deviceToken },
     idempotencyKey,
     { type: 'customer', deviceToken },
   )
@@ -62,7 +75,7 @@ export async function placeOrderAction(
   const transitioned = transitionOrder(order.id, 'awaiting_payment', { type: 'system' })
   const current = transitioned.ok ? transitioned.order : order
 
-  const { providerRef } = await getProvider('counter').initiate(current)
+  const { providerRef } = await getProvider(providerId).initiate(current)
   setProviderRef(current.id, providerRef)
 
   return { ok: true, orderId: current.id }

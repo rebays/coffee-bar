@@ -13,7 +13,12 @@ import type { MenuItem } from './types.ts'
  */
 export type ResolvedLine = {
   item: MenuItem
-  /** Selected choices that differ from the group's default. */
+  /**
+   * Selected choices worth stating in a summary: any non-default choice,
+   * plus every `alwaysShow` group's choice regardless of default (see
+   * OptionGroup.alwaysShow — sweetness is always stated, milk only when
+   * it's not "whole").
+   */
   customizations: string[]
   unitPrice: Money
   lineTotal: Money
@@ -35,7 +40,7 @@ export function resolveCartLine(
     const choice = group.choices.find((c) => c.id === choiceId)
     if (!choice) continue
     deltas.push(choice.priceDelta)
-    if (choiceId !== group.defaultChoiceId) customizations.push(choice.label)
+    if (group.alwaysShow || choiceId !== group.defaultChoiceId) customizations.push(choice.label)
   }
 
   const unitPrice = addMoney(item.basePrice, ...deltas)
