@@ -1,6 +1,5 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { OrderHistoryCard } from '@/components/order/order-history-card'
@@ -10,50 +9,14 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input, textarea, select, [tabindex]:not([tabindex="-1"])'
 
 /**
- * A permanent quick-access entry to order history — separate from the cart
- * bar (which stays a single tap target per its own design) rather than a
- * second control crowded into it. Fixed just above where the cart bar sits,
- * whether or not the cart bar itself is currently showing, so its position
- * never jumps as the cart bar appears/disappears.
- *
- * Shown only on /menu and /order/* — everywhere else either is the
- * destination already (/orders*), carries its own sticky footer this would
- * collide with (/cart, /item/*), or isn't a customer surface at all
- * (/, which is now the pre-menu service-type gate; /staff; /style-guide).
+ * The past-orders modal, triggered from BottomNav's "Recent orders" button.
+ * Extracted from the old standalone RecentOrdersLauncher so the fetch,
+ * focus-trap and drawer chrome aren't rebuilt for the merged nav bar.
+ * Same trap/backdrop/Escape mechanics as ItemSheetShell, kept separate
+ * rather than shared — that shell closes via router.back(), which only
+ * makes sense for a routed sheet; this drawer is plain client state.
  */
-export function RecentOrdersLauncher() {
-  const pathname = usePathname()
-  const [open, setOpen] = useState(false)
-
-  const visible = pathname === '/menu' || pathname?.startsWith('/order/')
-  if (!visible) return null
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={[
-          'tap-expand border-hairline bg-raised text-primary shadow-raise print:hidden',
-          'fixed z-20 inline-flex items-center gap-2 rounded-pill border px-4 font-semibold',
-          'text-small',
-        ].join(' ')}
-        style={{
-          insetInlineEnd: 'var(--spacing-gutter)',
-          bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px) + 0.75rem)',
-          blockSize: 'var(--control-sm)',
-        }}
-      >
-        <ReceiptIcon />
-        Recent orders
-      </button>
-
-      {open ? <RecentOrdersDrawer onClose={() => setOpen(false)} /> : null}
-    </>
-  )
-}
-
-function RecentOrdersDrawer({ onClose }: { onClose: () => void }) {
+export function RecentOrdersDrawer({ onClose }: { onClose: () => void }) {
   const panelRef = useRef<HTMLDivElement>(null)
   const [orders, setOrders] = useState<OrderHistoryView[] | null>(null)
 
@@ -72,9 +35,6 @@ function RecentOrdersDrawer({ onClose }: { onClose: () => void }) {
     }
   }, [])
 
-  // Same trap/backdrop/Escape mechanics as ItemSheetShell, kept separate
-  // rather than shared — that shell closes via router.back(), which only
-  // makes sense for a routed sheet; this drawer is plain client state.
   useEffect(() => {
     const triggeredBy = document.activeElement as HTMLElement | null
     const previousOverflow = document.documentElement.style.overflow
@@ -166,21 +126,6 @@ function RecentOrdersDrawer({ onClose }: { onClose: () => void }) {
         </div>
       </div>
     </div>
-  )
-}
-
-function ReceiptIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none">
-      <path
-        d="M6 3h12v15l-1.5 1.5L15 18l-1.5 1.5L12 18l-1.5 1.5L9 18l-1.5 1.5L6 18V3Z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M8.5 7.5h7M8.5 11h7M8.5 14.5h4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
   )
 }
 

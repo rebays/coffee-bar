@@ -144,7 +144,7 @@ export function StaffInventoryList({ initialItems }: { initialItems: MenuItem[] 
                     <div className="flex items-center justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-2">
-                          <span className="text-item truncate">{item.name}</span>
+                          <span className="min-w-0 truncate text-item">{item.name}</span>
                           {item.soldOut ? <Tag variant="sold-out">Sold out</Tag> : null}
                         </div>
                         <span

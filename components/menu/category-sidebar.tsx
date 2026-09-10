@@ -41,9 +41,14 @@ export function CategorySidebar({
             className={[
               'tap-expand flex flex-col items-center gap-1 rounded-tile px-1 py-2.5 text-center',
               'transition-[background-color,color] duration-(--dur-fast) ease-(--ease-standard)',
+              // Inactive icons/labels sit at full ink (text-primary), not the
+              // muted text-secondary step — thin 1.75px icon strokes read
+              // visibly lighter than solid text at the same colour, so the
+              // sidebar's resting state wants the darkest neutral available,
+              // not just a value that clears the text contrast floor.
               isActive
                 ? 'bg-accent-subtle text-accent font-semibold'
-                : 'text-secondary hover:bg-sunken',
+                : 'text-primary hover:bg-sunken',
             ].join(' ')}
           >
             <CategoryIcon category={category.id} />
