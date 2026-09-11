@@ -20,7 +20,7 @@ export function MenuRow({
   /** The shop is closed — every add control disables, not just sold-out ones. */
   orderingDisabled?: boolean
 }) {
-  const { slug, name, description, tastingNote, roast, spec, basePrice, isNew, soldOut } = item
+  const { slug, name, description, tastingNote, roast, spec, basePrice, isNew, soldOut, tags } = item
   const secondaryLine = tastingNote ?? description
   const href = `/item/${slug}`
   const addDisabled = soldOut || orderingDisabled
@@ -42,6 +42,13 @@ export function MenuRow({
               <span className="text-item truncate group-hover:underline">{name}</span>
             </span>
             {isNew ? <Tag variant="new">New</Tag> : null}
+            {/* Merchandising/dietary tags — "Popular", "Gluten-Free", etc. —
+                are metadata, not a call to action, so they get the same
+                neutral treatment as any other tag, never a colour of their
+                own (docs/DESIGN-SYSTEM.md §7). */}
+            {tags.map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
             {soldOut ? <Tag variant="sold-out">Sold out</Tag> : null}
           </div>
           <p

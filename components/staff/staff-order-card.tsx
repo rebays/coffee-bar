@@ -42,7 +42,13 @@ export function StaffOrderCard({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-title">{order.pickupCode}</p>
-          <p className="text-small text-tertiary mt-1">
+          {/* suppressHydrationWarning: this is a 'use client' component, so
+              Next server-renders it too — if the server process's timezone
+              differs from the staff device's browser, toLocaleTimeString
+              legitimately disagrees between the two passes. That's expected
+              here (this is a local wall-clock time, not orderable data), so
+              it's suppressed rather than a source of a real mismatch. */}
+          <p className="text-small text-tertiary mt-1" suppressHydrationWarning>
             {new Date(order.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
           </p>
         </div>
