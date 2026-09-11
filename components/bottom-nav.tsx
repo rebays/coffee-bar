@@ -9,11 +9,19 @@ import { useCartSummary } from '@/lib/cart-store'
 import { formatSBD, formatSBDSpoken } from '@/lib/money'
 
 /**
- * The app's one persistent bottom bar — two actions on a single line:
- * "Recent orders" (opens the past-orders drawer) and "Cart" (a real link to
- * /cart, carrying the live item count and total). Supersedes the old
- * cart-only bar and the separate floating RecentOrdersLauncher pill, which
- * duplicated this same screen edge.
+ * The app's one persistent bottom bar — three actions on a single line:
+ * "Recent orders" (opens the past-orders drawer), "Cart" (a real link to
+ * /cart, carrying the live item count and total), and "Account"/"Sign in"
+ * (a real link to /account or /login, depending on whether a customer
+ * session exists). Supersedes the old cart-only bar and the separate
+ * floating RecentOrdersLauncher pill, which duplicated this same screen
+ * edge.
+ *
+ * `customerName` is read server-side (getCurrentCustomer reads an httpOnly
+ * cookie, which a client component can't do) and passed down from
+ * app/layout.tsx — this component stays a plain, easily-testable client
+ * component that only ever reacts to the prop, never fetches its own
+ * session state.
  *
  * Edge-to-edge black, matching the rest of the system's structure surfaces
  * (status strip) rather than a floating card — black is structure here, not
@@ -32,7 +40,7 @@ import { formatSBD, formatSBDSpoken } from '@/lib/money'
  * Visible everywhere else, including /orders — this is navigation, not a
  * shortcut that should hide at its own destination.
  */
-export function BottomNav() {
+export function BottomNav({ customerName }: { customerName: string | null }) {
   const pathname = usePathname()
   const { itemCount, total } = useCartSummary()
   const [recentOrdersOpen, setRecentOrdersOpen] = useState(false)
@@ -96,6 +104,15 @@ export function BottomNav() {
           <CartIcon />
           <span className="min-w-0 truncate">{cartLabel}</span>
         </Link>
+
+        <Link
+          href={customerName ? '/account' : '/login'}
+          aria-label={customerName ? `Account, signed in as ${customerName}` : 'Log in or create an account'}
+          className={actionClass}
+        >
+          <AccountIcon />
+          <span className="min-w-0 truncate">{customerName ?? 'Sign in'}</span>
+        </Link>
       </nav>
 
       {recentOrdersOpen ? <RecentOrdersDrawer onClose={() => setRecentOrdersOpen(false)} /> : null}
@@ -124,6 +141,15 @@ function CartIcon() {
       />
       <circle cx="6.5" cy="14" r="0.9" fill="currentColor" />
       <circle cx="11" cy="14" r="0.9" fill="currentColor" />
+    </svg>
+  )
+}
+
+function AccountIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" fill="none" className="shrink-0">
+      <circle cx="8" cy="5.5" r="2.75" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M2.75 13.25c.7-2.8 3-4.25 5.25-4.25s4.55 1.45 5.25 4.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   )
 }

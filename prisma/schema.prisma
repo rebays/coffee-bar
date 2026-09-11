@@ -1,0 +1,79 @@
+// Customer accounts. Everything else in this app (menu, orders, staff
+// sessions) is deliberately in-memory (see lib/orders/store.ts) — fine for
+// phase-1 demo data, but not for a password or a verification code, which
+// must survive a restart and stay correct across serverless instances. This
+// is the one piece of durable storage in the project.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  id       String @id @default(cuid())
+  fullName String
+  // The one required identity/login handle — signup, login and OTP
+  // delivery are all phone-only. Stored normalized (E.164-ish, +677...) by
+  // lib/validation/contact.ts so two different typings of the same number
+  // can't slip past the unique constraint as "different" numbers.
+  phone        String   @unique
+  // No longer collected at signup — kept nullable and unused by the auth
+  // flow rather than dropped, so a future feature (e.g. emailed receipts)
+  // doesn't need another migration just to get the column back.
+  email        String?  @unique
+  passwordHash String
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  verificationCodes VerificationCode[]
+  sessions          CustomerSession[]
+}
+
+enum VerificationChannel {
+  email
+  phone
+}
+
+model VerificationCode {
+  id         String              @id @default(cuid())
+  customerId String
+  customer   Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  channel    VerificationChannel
+  // The code itself is never stored in plain text — same reasoning as a
+  // password: it's a short-lived secret, and hashing it means a leaked
+  // database row can't be used to complete someone else's signup.
+  codeHash   String
+  expiresAt  DateTime
+  // Null while unused; set once, atomically with marking the customer
+  // verified, so a code can never be replayed.
+  consumedAt DateTime?
+  // Wrong-code attempts against this row — capped in
+  // lib/customers/verification.ts so guessing isn't unlimited even inside
+  // the expiry window.
+  attemptCount Int      @default(0)
+  // Resend cooldown is measured from here, not `createdAt` — a resend
+  // replaces the row's code and timer rather than inserting a new row, so
+  // there's always at most one live code per customer.
+  lastSentAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([customerId])
+}
+
+model CustomerSession {
+  // An opaque random token, not a signed JWT — matching lib/staff-auth.ts's
+  // existing session shape (a token the client only ever sees as an httpOnly
+  // cookie value, looked up server-side) rather than introducing a second,
+  // different auth style into the app.
+  token      String   @id
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([customerId])
+}
