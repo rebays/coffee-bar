@@ -127,12 +127,12 @@ export function StaffInventoryList({ initialItems }: { initialItems: MenuItem[] 
         if (categoryItems.length === 0) return null
 
         return (
-          <div key={category.id} className="flex flex-col gap-1">
+          <div key={category.id} className="flex flex-col gap-2">
             <h2 className="text-spec wdth-condensed text-secondary">{category.label}</h2>
-            <ul className="divide-hairline divide-y">
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {categoryItems.map((item, index) =>
                 editing?.mode === 'edit' && editing.slug === item.slug ? (
-                  <li key={item.slug} className="py-3">
+                  <li key={item.slug} className="border-hairline rounded-tile col-span-full border p-4">
                     <StaffMenuItemForm
                       item={item}
                       onCancel={() => setEditing(null)}
@@ -140,11 +140,11 @@ export function StaffInventoryList({ initialItems }: { initialItems: MenuItem[] 
                     />
                   </li>
                 ) : (
-                  <li key={item.slug} className="flex flex-col gap-2 py-3">
-                    <div className="flex items-center justify-between gap-4">
+                  <li key={item.slug} className="border-hairline rounded-tile flex flex-col gap-3 border p-4">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-2">
-                          <span className="min-w-0 truncate text-item">{item.name}</span>
+                          <span className="min-w-0 text-item">{item.name}</span>
                           {item.soldOut ? <Tag variant="sold-out">Sold out</Tag> : null}
                         </div>
                         <span
@@ -182,7 +182,7 @@ export function StaffInventoryList({ initialItems }: { initialItems: MenuItem[] 
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="mt-auto flex flex-wrap items-center gap-2">
                       <Button
                         variant="secondary"
                         size="sm"

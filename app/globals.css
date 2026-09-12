@@ -141,6 +141,7 @@
   --spacing-category-rail: 4rem; /* left category sidebar, all breakpoints */
   --container-menu: 40rem;
   --container-form: 32.5rem;
+  --spacing-sidebar: 15rem; /* staff dashboard nav rail */
 }
 
 /* --------------------------------------------------------------------------
