@@ -2,6 +2,7 @@ import { StaffDashboard } from '@/components/staff/staff-dashboard'
 import { StaffLoginForm } from '@/components/staff/staff-login-form'
 import { getMenuItems } from '@/lib/menu-store'
 import { listOrders } from '@/lib/orders/store'
+import { getStaffStats } from '@/lib/orders/staff-stats'
 import { LIVE_STATES, toStaffOrderView } from '@/lib/orders/staff-view'
 import { getStaffSession } from '@/lib/staff-auth'
 
@@ -18,12 +19,14 @@ export default async function StaffPage() {
   // server-fetched `initial` rather than an empty state.
   const initialOrders = listOrders({ states: LIVE_STATES }).map(toStaffOrderView)
   const initialMenuItems = getMenuItems()
+  const initialStats = getStaffStats()
 
   return (
     <StaffDashboard
       staffName={session.staffName}
       initialOrders={initialOrders}
       initialMenuItems={initialMenuItems}
+      initialStats={initialStats}
     />
   )
 }
