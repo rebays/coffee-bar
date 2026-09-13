@@ -1,4 +1,6 @@
-import type { Order, OrderLine, OrderState } from './types.ts'
+import { withLineImages } from './line-image.ts'
+import type { OrderLineView } from './line-image.ts'
+import type { Order, OrderState } from './types.ts'
 
 /**
  * What the customer-facing status page and its polling endpoint send over
@@ -10,7 +12,7 @@ import type { Order, OrderLine, OrderState } from './types.ts'
 export type OrderStatusView = {
   id: string
   pickupCode: string
-  lines: OrderLine[]
+  lines: OrderLineView[]
   total: Order['total']
   state: OrderState
   cancelReason?: string
@@ -20,7 +22,7 @@ export function toStatusView(order: Order): OrderStatusView {
   return {
     id: order.id,
     pickupCode: order.pickupCode,
-    lines: order.lines,
+    lines: withLineImages(order.lines),
     total: order.total,
     state: order.state,
     cancelReason: order.cancelReason,

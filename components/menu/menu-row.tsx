@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { AddToCartButton } from '@/components/cart/add-to-cart-button'
 import { formatSBD, formatSBDSpoken } from '@/lib/money'
 import type { MenuItem } from '@/lib/types'
+import { ItemThumbnail } from '@/components/ui/item-thumbnail'
 import { Tag } from '@/components/ui/tag'
 
 import { RoastBar } from './roast-bar'
@@ -20,7 +21,7 @@ export function MenuRow({
   /** The shop is closed — every add control disables, not just sold-out ones. */
   orderingDisabled?: boolean
 }) {
-  const { slug, name, description, tastingNote, roast, spec, basePrice, isNew, soldOut, tags } = item
+  const { slug, name, description, tastingNote, roast, spec, basePrice, isNew, soldOut, tags, imageUrl } = item
   const secondaryLine = tastingNote ?? description
   const href = `/item/${slug}`
   const addDisabled = soldOut || orderingDisabled
@@ -32,8 +33,9 @@ export function MenuRow({
 
   return (
     <li className="flex items-start gap-4 py-4">
-      <div className="min-w-0 flex-1">
-        <Link href={href} className="group block min-w-0 rounded-tile">
+      <Link href={href} className="group flex min-w-0 flex-1 gap-3 rounded-tile">
+        <ItemThumbnail src={imageUrl} size={64} muted={soldOut} />
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             {/* Roast bar and name never separate — only the name truncates,
                 so a long origin name still reads as one line at 320px. */}
@@ -60,8 +62,8 @@ export function MenuRow({
             {secondaryLine}
           </p>
           <p className="text-spec wdth-condensed text-tertiary mt-1">{spec}</p>
-        </Link>
-      </div>
+        </div>
+      </Link>
 
       <div className="price-rail flex flex-col items-end gap-2 pt-0.5">
         <span

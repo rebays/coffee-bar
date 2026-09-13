@@ -1,4 +1,6 @@
-import type { Order, OrderLine, OrderState } from './types.ts'
+import { withLineImages } from './line-image.ts'
+import type { OrderLineView } from './line-image.ts'
+import type { Order, OrderState } from './types.ts'
 
 /**
  * What the staff dashboard and its endpoints send over the wire. Same
@@ -9,7 +11,7 @@ import type { Order, OrderLine, OrderState } from './types.ts'
 export type StaffOrderView = {
   id: string
   pickupCode: string
-  lines: OrderLine[]
+  lines: OrderLineView[]
   total: Order['total']
   state: OrderState
   createdAt: string
@@ -21,7 +23,7 @@ export function toStaffOrderView(order: Order): StaffOrderView {
   return {
     id: order.id,
     pickupCode: order.pickupCode,
-    lines: order.lines,
+    lines: withLineImages(order.lines),
     total: order.total,
     state: order.state,
     createdAt: order.createdAt,

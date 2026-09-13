@@ -7,6 +7,7 @@ import { formatSBD, formatSBDSpoken } from '@/lib/money'
 import { allowedTransitions } from '@/lib/orders/state-machine'
 import { displayStepIndex } from '@/lib/orders/status-view'
 import type { OrderStatusView } from '@/lib/orders/status-view'
+import { ItemThumbnail } from '@/components/ui/item-thumbnail'
 
 import { OrderStatusStepper } from './order-status-stepper'
 
@@ -97,17 +98,20 @@ export function OrderStatusPoller({ initial }: { initial: OrderStatusView }) {
 
       <ul className="divide-hairline w-full max-w-xs divide-y text-left">
         {status.lines.map((line, index) => (
-          <li key={index} className="flex flex-col gap-0.5 py-2">
-            <div className="flex items-baseline justify-between gap-4">
-              <span className="text-body">
-                {line.quantity} × {line.name}
-                {line.customizations.length > 0 ? (
-                  <span className="text-secondary"> ({line.customizations.join(', ')})</span>
-                ) : null}
-              </span>
-              <span className="text-price shrink-0">{formatSBD(line.lineTotal)}</span>
+          <li key={index} className="flex items-start gap-3 py-2">
+            <ItemThumbnail src={line.imageUrl} size={40} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="text-body">
+                  {line.quantity} × {line.name}
+                  {line.customizations.length > 0 ? (
+                    <span className="text-secondary"> ({line.customizations.join(', ')})</span>
+                  ) : null}
+                </span>
+                <span className="text-price shrink-0">{formatSBD(line.lineTotal)}</span>
+              </div>
+              {line.notes ? <p className="tasting-note">“{line.notes}”</p> : null}
             </div>
-            {line.notes ? <p className="tasting-note">“{line.notes}”</p> : null}
           </li>
         ))}
       </ul>

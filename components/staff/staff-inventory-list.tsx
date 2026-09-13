@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { ItemThumbnail } from '@/components/ui/item-thumbnail'
 import { Modal } from '@/components/ui/modal'
 import { Tag } from '@/components/ui/tag'
 import { CategoryIcon } from '@/components/menu/category-icon'
@@ -368,9 +369,7 @@ export function StaffInventoryList({
                     <li key={item.slug} className="border-hairline bg-raised rounded-tile flex flex-col gap-3 border p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex min-w-0 flex-1 items-start gap-2">
-                          <span className="text-tertiary mt-0.5 shrink-0">
-                            <CategoryIcon category={item.category} />
-                          </span>
+                          <ItemThumbnail src={item.imageUrl} size={40} muted={item.soldOut} />
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-baseline gap-2">
                               <span className="min-w-0 text-item">{item.name}</span>
@@ -443,9 +442,7 @@ export function StaffInventoryList({
               <ul className="divide-hairline divide-y">
                 {categoryItems.map((item, index) => (
                     <li key={item.slug} className="flex flex-wrap items-center gap-3 py-3">
-                      <span className="text-tertiary shrink-0">
-                        <CategoryIcon category={item.category} />
-                      </span>
+                      <ItemThumbnail src={item.imageUrl} size={40} muted={item.soldOut} />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-2">
                           <span className="min-w-0 truncate text-item">{item.name}</span>
