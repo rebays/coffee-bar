@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-import { CATEGORIES } from '@/lib/types'
 import type { Category, MenuItem } from '@/lib/types'
 
 import { CategorySidebar } from './category-sidebar'
@@ -11,7 +10,9 @@ import { STATUS_STRIP_HEIGHT_PX } from './status-strip'
 
 /**
  * Two-column, Luckin-style menu body: a permanent left category sidebar next
- * to one continuous scroll of every category's section, in CATEGORIES order.
+ * to one continuous scroll of every category's section, in `categories`
+ * order (the live taxonomy from lib/category-store.ts, passed down rather
+ * than imported directly — the same pattern `items` already follows).
  * Grouping reads `item.category` directly — the same field the staff surface
  * and cart already trust — so a section can never show the wrong items.
  *
@@ -21,24 +22,28 @@ import { STATUS_STRIP_HEIGHT_PX } from './status-strip'
  */
 export function MenuBody({
   items,
+  categories,
   orderingDisabled = false,
 }: {
   items: MenuItem[]
+  categories: ReadonlyArray<{ id: Category; label: string }>
   orderingDisabled?: boolean
 }) {
   const sectionRefs = useRef(new Map<Category, HTMLElement>())
 
-  const groups = CATEGORIES.map((category) => ({
-    category: category.id,
-    label: category.label,
-    items: items.filter((item) => item.category === category.id),
-  })).filter((group) => group.items.length > 0)
+  const groups = categories
+    .map((category) => ({
+      category: category.id,
+      label: category.label,
+      items: items.filter((item) => item.category === category.id),
+    }))
+    .filter((group) => group.items.length > 0)
   const sidebarCategories = groups.map((group) => ({ id: group.category, label: group.label }))
 
-  // Falls back to CATEGORIES[0] only if every category were somehow empty —
+  // Falls back to categories[0] only if every category were somehow empty —
   // groups[0] is the real first non-empty one, so an empty category ahead
   // of it in taxonomy order never becomes the stuck "active" state.
-  const [active, setActive] = useState<Category>(groups[0]?.category ?? CATEGORIES[0].id)
+  const [active, setActive] = useState<Category>(groups[0]?.category ?? categories[0]?.id ?? '')
 
   useEffect(() => {
     const observer = new IntersectionObserver(

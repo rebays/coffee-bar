@@ -5,23 +5,28 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { formatSBD } from '@/lib/money'
 import { staffLogoutAction } from '@/lib/actions/staff-auth'
+import { showToast } from '@/lib/toast-store'
+import type { CategoryRecord } from '@/lib/category-store'
 import type { MenuItem } from '@/lib/types'
 import type { StaffAction, StaffOrderView } from '@/lib/orders/staff-view'
 import type { StaffStats } from '@/lib/orders/staff-stats'
 
 import { StaffDemoModeToggle } from './staff-demo-mode-toggle'
+import { StaffHoursEditor } from './staff-hours-editor'
 import { StaffInventoryList } from './staff-inventory-list'
 import { StaffOrderCard } from './staff-order-card'
+import { StaffOrderHistory } from './staff-order-history'
 import { StaffStatCard } from './staff-stat-card'
 import { StaffStoreStatus } from './staff-store-status'
 
 const POLL_INTERVAL_MS = 4000
 
-type View = 'overview' | 'orders' | 'inventory' | 'settings'
+type View = 'overview' | 'orders' | 'history' | 'inventory' | 'settings'
 
 const NAV_ITEMS: { id: View; label: string }[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'orders', label: 'Orders' },
+  { id: 'history', label: 'History' },
   { id: 'inventory', label: 'Inventory' },
   { id: 'settings', label: 'Settings' },
 ]
@@ -37,19 +42,24 @@ const NAV_ITEMS: { id: View; label: string }[] = [
 export function StaffDashboard({
   staffName,
   initialOrders,
+  initialHistory,
+  initialHistoryTotal,
   initialMenuItems,
+  initialCategories,
   initialStats,
 }: {
   staffName: string
   initialOrders: StaffOrderView[]
+  initialHistory: StaffOrderView[]
+  initialHistoryTotal: number
   initialMenuItems: MenuItem[]
+  initialCategories: CategoryRecord[]
   initialStats: StaffStats
 }) {
   const [view, setView] = useState<View>('overview')
   const [orders, setOrders] = useState(initialOrders)
   const [stats, setStats] = useState<StaffStats>(initialStats)
   const [search, setSearch] = useState('')
-  const [error, setError] = useState<string | null>(null)
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
 
   // Read by the polling interval so it always searches on the latest term
@@ -89,14 +99,13 @@ export function StaffDashboard({
 
   async function handleAction(orderId: string, action: StaffAction, reason?: string) {
     setPendingOrderId(orderId)
-    setError(null)
 
     const response = await fetch(`/api/staff/orders/${orderId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, reason }),
     })
-    if (!response.ok) setError('That action failed — try again.')
+    if (!response.ok) showToast('That action failed — try again.', 'error')
 
     setPendingOrderId(null)
     fetchOrders(search.trim())
@@ -104,9 +113,13 @@ export function StaffDashboard({
   }
 
   return (
-    <div className="flex w-full flex-1 flex-col lg:flex-row">
+    <div
+      data-theme="dark"
+      data-surface="staff"
+      className="bg-ground text-primary flex w-full flex-1 flex-col lg:flex-row"
+    >
       <aside
-        className="border-hairline flex shrink-0 flex-row items-center justify-between gap-2 border-b p-4 lg:sticky lg:top-0 lg:h-screen lg:w-(--spacing-sidebar) lg:flex-col lg:items-stretch lg:justify-between lg:border-r lg:border-b-0 lg:p-6"
+        className="border-hairline bg-raised flex shrink-0 flex-row items-center justify-between gap-2 border-b p-4 lg:sticky lg:top-0 lg:h-screen lg:w-(--spacing-sidebar) lg:flex-col lg:items-stretch lg:justify-between lg:border-r lg:border-b-0 lg:p-6"
       >
         <div className="flex flex-row items-center gap-3 lg:flex-col lg:items-stretch lg:gap-6" style={{ minInlineSize: 0 }}>
           <div>
@@ -122,7 +135,7 @@ export function StaffDashboard({
                 onClick={() => setView(item.id)}
                 className={[
                   'rounded-tile text-body px-3 py-2 text-left font-medium transition-colors',
-                  view === item.id ? 'bg-structure text-on-structure' : 'text-secondary hover:bg-sunken',
+                  view === item.id ? 'bg-accent-subtle text-accent' : 'text-secondary hover:bg-sunken',
                 ].join(' ')}
               >
                 {item.label}
@@ -146,8 +159,6 @@ export function StaffDashboard({
       <main className="px-gutter flex w-full flex-1 flex-col gap-6 py-6 lg:px-10 lg:py-8">
         <h1 className="text-title">{NAV_ITEMS.find((item) => item.id === view)?.label}</h1>
 
-        {error ? <p className="text-danger-text text-small">{error}</p> : null}
-
         {view === 'overview' ? (
           <OverviewView
             stats={stats}
@@ -167,10 +178,17 @@ export function StaffDashboard({
           />
         ) : null}
 
-        {view === 'inventory' ? <StaffInventoryList initialItems={initialMenuItems} /> : null}
+        {view === 'history' ? (
+          <StaffOrderHistory initialHistory={initialHistory} initialHistoryTotal={initialHistoryTotal} />
+        ) : null}
+
+        {view === 'inventory' ? (
+          <StaffInventoryList initialItems={initialMenuItems} initialCategories={initialCategories} />
+        ) : null}
 
         {view === 'settings' ? (
           <div className="flex max-w-2xl flex-col gap-4">
+            <StaffHoursEditor />
             <StaffStoreStatus />
             <StaffDemoModeToggle />
           </div>
@@ -245,7 +263,7 @@ function OrdersView({
         onChange={(event) => onSearchChange(event.target.value)}
         placeholder="Search by pickup code"
         aria-label="Search by pickup code"
-        className="border-hairline rounded-tile text-body max-w-sm border p-3"
+        className="border-hairline rounded-input text-body max-w-sm border p-3"
       />
 
       {orders.length === 0 ? (

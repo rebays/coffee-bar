@@ -4,6 +4,7 @@ import { ClosedNotice } from '@/components/menu/closed-notice'
 import { MenuBody } from '@/components/menu/menu-body'
 import { ServiceTypeSync } from '@/components/menu/service-type-sync'
 import { StatusStrip } from '@/components/menu/status-strip'
+import { getCategories } from '@/lib/category-store'
 import { getMenuItems } from '@/lib/menu-store'
 import type { ServiceType } from '@/lib/service-context'
 import { peekServiceContext } from '@/lib/service-context-server'
@@ -50,7 +51,7 @@ export default async function MenuPage(props: PageProps<'/menu'>) {
       </Suspense>
       <ClosedNotice isOpen={shopState.isOpen} opensAt={shopState.opensAt} />
       <StatusStrip state={shopState} serviceType={serviceType} tableNumber={tableNumber} />
-      <MenuBody items={getMenuItems()} orderingDisabled={!shopState.isOpen} />
+      <MenuBody items={getMenuItems()} categories={getCategories()} orderingDisabled={!shopState.isOpen} />
     </main>
   )
 }

@@ -75,5 +75,15 @@ export function CategoryIcon({ category }: { category: Category }) {
           <path d="M6.5 14h11" />
         </svg>
       )
+    default:
+      // Staff-added categories (lib/category-store.ts) have no bespoke glyph
+      // yet — a plain tag outline reads as "category" without guessing at
+      // content the label already names.
+      return (
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" {...STROKE}>
+          <path d="M11.5 4.5h5.6c.7 0 1.4.3 1.9.8l2.7 2.7c.5.5.8 1.2.8 1.9v0c0 .7-.3 1.4-.8 1.9l-8 8a2.7 2.7 0 0 1-3.8 0l-5.3-5.3a2.7 2.7 0 0 1 0-3.8l5.9-5.9c.5-.5 1.2-.8 1.9-.8v0Z" />
+          <circle cx="15.5" cy="8.5" r="1.25" fill="currentColor" stroke="none" />
+        </svg>
+      )
   }
 }

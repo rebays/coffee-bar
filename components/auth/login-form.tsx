@@ -29,7 +29,7 @@ export function LoginForm() {
           autoComplete="tel"
           placeholder="+677 7XXXXXX"
           required
-          className="border-hairline rounded-tile text-body border p-3"
+          className="border-hairline rounded-input text-body border p-3"
         />
       </div>
 
@@ -43,7 +43,7 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
-          className="border-hairline rounded-tile text-body border p-3"
+          className="border-hairline rounded-input text-body border p-3"
         />
       </div>
 

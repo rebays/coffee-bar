@@ -84,7 +84,7 @@ export function ItemOrderForm({ item }: { item: MenuItem }) {
             onChange={(event) => setNotes(event.target.value)}
             placeholder="Extra hot, no foam, on the side…"
             rows={2}
-            className="border-hairline rounded-tile text-body border p-3"
+            className="border-hairline rounded-input text-body border p-3"
           />
         </div>
       </div>

@@ -1,12 +1,12 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
+import { getCategories } from './category-store.ts'
 import { MENU, OPTION_GROUPS, getMenuItem, getOptionGroups } from './fixtures.ts'
-import { CATEGORIES } from './types.ts'
 import { isMoney } from './money.ts'
 
 test('every category carries at least two items', () => {
-  for (const { id, label } of CATEGORIES) {
+  for (const { id, label } of getCategories()) {
     const items = MENU.filter((item) => item.category === id)
     assert.ok(items.length >= 2, `${label} has ${items.length} item(s)`)
   }

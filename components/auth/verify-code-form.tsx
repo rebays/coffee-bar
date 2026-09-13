@@ -66,7 +66,7 @@ export function VerifyCodeForm({ customerId }: { customerId: string }) {
             autoComplete="one-time-code"
             maxLength={6}
             required
-            className="border-hairline rounded-tile text-body border p-3 text-center tracking-widest"
+            className="border-hairline rounded-input text-body border p-3 text-center tracking-widest"
           />
         </div>
         {verifyResult && !verifyResult.ok ? (

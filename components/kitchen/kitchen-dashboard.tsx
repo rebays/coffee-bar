@@ -87,6 +87,7 @@ export function KitchenDashboard({ initialOrders }: { initialOrders: StaffOrderV
   return (
     <main
       data-density="kiosk"
+      data-surface="staff"
       className="px-gutter mx-auto flex w-full flex-1 flex-col gap-4 py-6"
       style={{ maxInlineSize: 'var(--container-menu)' }}
     >

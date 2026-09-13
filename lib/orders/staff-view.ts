@@ -38,6 +38,16 @@ export function toStaffOrderView(order: Order): StaffOrderView {
  */
 export const LIVE_STATES = ['awaiting_payment', 'paid', 'making', 'ready'] as const
 
+/** Every terminal state — what the staff History tab shows. `placed` isn't here: it's a transient first tick, never a resting state. */
+export const HISTORY_STATES = ['collected', 'cancelled', 'payment_failed'] as const
+
+/**
+ * Shared by the server-rendered first page (app/staff/page.tsx), the API
+ * route's default, and the client's own paging — one constant so the SSR
+ * initial page and the client's first fetch can never drift apart.
+ */
+export const HISTORY_PAGE_SIZE = 20
+
 export type StaffAction = 'mark_paid' | 'start_making' | 'ready' | 'collected' | 'cancel'
 
 /**

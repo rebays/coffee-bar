@@ -120,9 +120,15 @@
   --text-display--letter-spacing: -0.025em;
   --text-display--font-weight: 700;
 
-  /* Geometry — encodes hierarchy: surfaces square, tiles crisp, controls round */
+  /* Geometry — encodes hierarchy: surfaces square, tiles crisp, text entry
+     soft, controls round. `--radius-input` is deliberately its own step
+     between tile and pill: an input isn't a pressable object (so not
+     radius-pill), but it also isn't a static card or image (so radius-tile's
+     3px reads as an oversight rather than a choice once you're typing into
+     it). See docs/DESIGN-SYSTEM.md §1. */
   --radius-none: 0px;
   --radius-tile: 3px;
+  --radius-input: 10px;
   --radius-sheet: 16px;
   --radius-pill: 999px;
 
@@ -255,6 +261,20 @@
   --control-md: 3.5rem;
   --control-lg: 4rem;
   --tap-min: 3.5rem;
+}
+
+/*
+ * Staff surface (dashboard, kitchen display, staff sign-in): a deliberately
+ * rounder geometry than the customer menu's crisp 3px tiles. The menu's
+ * "surfaces square, tiles crisp" rule (§1) is about a physical countertop
+ * display read at a glance; the back office is a desktop admin screen with
+ * no such constraint, so this scope trades that crispness for a softer,
+ * more modern card language. Scoped, not global — nothing here touches the
+ * customer-facing token values.
+ */
+[data-surface="staff"] {
+  --radius-tile: 14px;
+  --radius-input: 12px;
 }
 
 @theme inline {
@@ -571,6 +591,23 @@
 
   .animate-toast-in {
     animation: toast-in var(--dur-base) var(--ease-standard);
+  }
+
+  /* Confirm dialog entrance — a small scale-and-fade rather than the sheet's
+     slide, since a centered popup has no edge to rise from. */
+  @keyframes dialog-in {
+    from {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-dialog-in {
+    animation: dialog-in var(--dur-base) var(--ease-standard);
   }
 }
 

@@ -38,7 +38,7 @@ export function StaffOrderCard({
   }
 
   return (
-    <li className="border-hairline rounded-tile flex flex-col gap-3 border p-4">
+    <li className="border-hairline bg-raised rounded-tile flex flex-col gap-3 border p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-title">{order.pickupCode}</p>
@@ -100,7 +100,7 @@ export function StaffOrderCard({
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             placeholder="Customer changed their mind"
-            className="border-hairline rounded-tile text-body border p-2"
+            className="border-hairline rounded-input text-body border p-2"
             autoFocus
           />
           <div className="flex flex-wrap gap-2">

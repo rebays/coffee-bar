@@ -184,7 +184,7 @@ export default function CartPage() {
               placeholder="74XXXXX"
               value={mselenPhone}
               onChange={(event) => setMselenPhone(event.target.value)}
-              className="border-hairline rounded-tile text-body border p-3"
+              className="border-hairline rounded-input text-body border p-3"
             />
             <Button
               size="lg"

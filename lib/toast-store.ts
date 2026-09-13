@@ -5,9 +5,13 @@ import { useSyncExternalStore } from 'react'
 /**
  * A single transient message at a time — the copy convention in this app
  * ("Added to order", "Order placed") is a brief confirmation of the action
- * just taken, not a queue of notifications to work through.
+ * just taken, not a queue of notifications to work through. `variant`
+ * defaults to the neutral structure-black pill everywhere already using
+ * this; `'error'` is for the staff surface's failed actions, which used to
+ * render as a persistent inline `<p>` instead of a toast.
  */
-export type ToastState = { id: number; message: string } | null
+export type ToastVariant = 'default' | 'error'
+export type ToastState = { id: number; message: string; variant: ToastVariant } | null
 
 const DURATION_MS = 3000
 
@@ -32,9 +36,9 @@ function getServerSnapshot(): ToastState {
   return null
 }
 
-export function showToast(message: string): void {
+export function showToast(message: string, variant: ToastVariant = 'default'): void {
   const id = ++nextId
-  current = { id, message }
+  current = { id, message, variant }
   emit()
   setTimeout(() => {
     if (current?.id === id) {

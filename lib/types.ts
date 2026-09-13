@@ -1,14 +1,12 @@
 import type { Money } from './money.ts'
 
-export type Category =
-  | 'best-sellers'
-  | 'coffee'
-  | 'tea-refreshers'
-  | 'mains'
-  | 'sandwich'
-  | 'salad'
-  | 'sides'
-  | 'bakery-desserts'
+/**
+ * A category id — staff can add and rename categories at runtime (see
+ * lib/category-store.ts), so this is no longer a fixed literal union. The
+ * live, ordered list of categories is `getCategories()`, not a constant
+ * here — a runtime-added category couldn't extend a compile-time type.
+ */
+export type Category = string
 
 export type RoastLevel = 'light' | 'medium' | 'dark'
 
@@ -18,18 +16,6 @@ export const ROAST_SEGMENTS: Record<RoastLevel, number> = {
   medium: 2,
   dark: 3,
 }
-
-/** The shop's category taxonomy — order here is the menu's own order. */
-export const CATEGORIES: ReadonlyArray<{ id: Category; label: string }> = [
-  { id: 'best-sellers', label: 'Best Sellers' },
-  { id: 'coffee', label: 'Coffee' },
-  { id: 'tea-refreshers', label: 'Tea & Refreshers' },
-  { id: 'mains', label: 'Mains' },
-  { id: 'sandwich', label: 'Sandwich' },
-  { id: 'salad', label: 'Salad' },
-  { id: 'sides', label: 'Sides' },
-  { id: 'bakery-desserts', label: 'Bakery & Desserts' },
-]
 
 export type OptionChoice = {
   id: string
