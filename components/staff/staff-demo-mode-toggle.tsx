@@ -40,7 +40,7 @@ export function StaffDemoModeToggle() {
   if (enabled === null) return null
 
   return (
-    <div className="border-hairline rounded-tile flex items-center justify-between gap-4 border p-4">
+    <div className="border-hairline bg-raised rounded-tile flex items-center justify-between gap-4 border p-4">
       <div>
         <p className="text-item">Presentation demo mode</p>
         <p className="text-small text-secondary">

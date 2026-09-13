@@ -1,6 +1,6 @@
+import { getCategories } from './category-store.ts'
 import { MENU } from './fixtures.ts'
 import type { MenuItemFields } from './menu-item-input.ts'
-import { CATEGORIES } from './types.ts'
 import type { MenuItem } from './types.ts'
 
 /**
@@ -42,7 +42,7 @@ const globalMenu = globalThis as unknown as { __coffeeBarMenuStore?: MenuStoreSt
 const state = (globalMenu.__coffeeBarMenuStore ??= freshState())
 
 function categoryRank(category: MenuItem['category']): number {
-  return CATEGORIES.findIndex((c) => c.id === category)
+  return getCategories().findIndex((c) => c.id === category)
 }
 
 /**

@@ -84,13 +84,13 @@ export function ItemOrderForm({ item }: { item: MenuItem }) {
             onChange={(event) => setNotes(event.target.value)}
             placeholder="Extra hot, no foam, on the side…"
             rows={2}
-            className="border-hairline rounded-tile text-body border p-3"
+            className="border-hairline rounded-input text-body border p-3"
           />
         </div>
       </div>
 
       <div className="border-hairline bg-raised safe-bottom px-gutter sticky bottom-0 flex items-center gap-3 border-t py-3">
-        <Stepper value={quantity} onChange={setQuantity} itemLabel={item.name} />
+        <Stepper value={quantity} onChange={setQuantity} itemLabel={item.name} size="lg" />
         <Button size="lg" block disabled={item.soldOut} onClick={handleAdd}>
           Add to order · {formatSBD(total)}
         </Button>

@@ -37,9 +37,18 @@ Three commitments that drive everything downstream:
 3. **The hero is live state, not a picture.** Today's filter coffee, current wait,
    open/closed. That's the most useful thing a bar can tell you before you order.
 
-**Geometry encodes hierarchy.** Surfaces are square. Tiles get a 3px radius. Anything
-you press is fully round. A pill means "this is an object you touch"; a square edge
-means "this is the page." One radius on everything erases that signal.
+**Geometry encodes hierarchy.** Surfaces are square. Tiles get a 3px radius. Text
+inputs get a sleeker 10px — enough to read as "type here," distinct from a card you'd
+merely tap. Anything you press is fully round. A pill means "this is an object you
+touch"; a square edge means "this is the page." One radius on everything erases that
+signal.
+
+The staff surface (dashboard, kitchen display, sign-in) is the one deliberate,
+scoped exception: `[data-surface="staff"]` steps `radius-tile` up to 14px and
+`radius-input` to 12px. That crispness rule above is about a countertop display
+read at a glance; the back office is a desktop admin screen with none of that
+constraint, so it trades it for a rounder, more modern card language. Nothing here
+changes the customer-facing token values.
 
 Black is real black — `#000000`, not a tinted near-black. With a cyan accent, a warmed
 or cooled black muddies the relationship; true black keeps cyan reading as the only
@@ -268,10 +277,17 @@ inside the cart screen it opens (**Pay $19.50**). One cyan action visible at a t
 
 | Token | Value | Applies to |
 |---|---|---|
-| `radius-tile` | 3px | Cards, images, input fields |
+| `radius-tile` | 3px (14px on the staff surface) | Cards, images |
+| `radius-input` | 10px (12px on the staff surface) | Text inputs, textareas, search fields |
 | `radius-sheet` | 16px 16px 0 0 | Bottom sheets only |
 | `radius-pill` | 999px | Buttons, tags, option chips, stepper |
 | `radius-none` | 0 | Page surfaces, dividers, status strip, cart bar |
+
+`radius-input` sits between `radius-tile` and `radius-pill` on purpose: a text
+field isn't a pressable object (so not a pill), but it isn't a static card or
+image either — 3px reads as an oversight once you're typing into it, not a
+choice. Never apply `radius-input` to anything but an actual `<input>` or
+`<textarea>`; a card that merely contains a form still uses `radius-tile`.
 
 Two elevations, neutral:
 

@@ -1,6 +1,6 @@
+import { getCategories } from './category-store.ts'
 import { OPTION_GROUPS } from './fixtures.ts'
 import { isMoney } from './money.ts'
-import { CATEGORIES } from './types.ts'
 import type { Category, MenuItem, RoastLevel } from './types.ts'
 
 /**
@@ -12,7 +12,6 @@ import type { Category, MenuItem, RoastLevel } from './types.ts'
  */
 export type MenuItemFields = Omit<MenuItem, 'slug' | 'soldOut'>
 
-const CATEGORY_VALUES: readonly Category[] = CATEGORIES.map((category) => category.id)
 const ROAST_VALUES: readonly RoastLevel[] = ['light', 'medium', 'dark']
 
 export type ParseResult =
@@ -46,11 +45,12 @@ export function parseMenuItemFields(body: unknown): ParseResult {
   const spec = trimmedString(record.spec)
   if (!spec) return { ok: false, error: 'spec is required' }
 
+  const categoryValues = getCategories().map((category) => category.id)
   const categoryRaw = trimmedString(record.category)
-  if (!CATEGORY_VALUES.includes(categoryRaw as Category)) {
-    return { ok: false, error: 'category must be one of ' + CATEGORY_VALUES.join(', ') }
+  if (!categoryValues.includes(categoryRaw)) {
+    return { ok: false, error: 'category must be one of ' + categoryValues.join(', ') }
   }
-  const category = categoryRaw as Category
+  const category: Category = categoryRaw
 
   const basePrice = record.basePrice
   if (typeof basePrice !== 'number' || !isMoney(basePrice) || basePrice < 0) {

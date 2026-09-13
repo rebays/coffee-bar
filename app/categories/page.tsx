@@ -2,19 +2,20 @@ import Link from 'next/link'
 
 import { CategoryGrid } from '@/components/menu/category-grid'
 import type { CategorySummary } from '@/components/menu/category-grid'
+import { getCategories } from '@/lib/category-store'
 import { getMenuItems } from '@/lib/menu-store'
-import { CATEGORIES } from '@/lib/types'
 
 /**
- * A standalone entry point onto the menu's own taxonomy — CATEGORIES mapped
- * straight to tiles, same as MenuBody maps it to sidebar buttons, and
- * filtered the same way: a category with nothing on the menu right now
- * gets no tile, rather than a tile that lands on an empty section.
+ * A standalone entry point onto the menu's own taxonomy — the live category
+ * list (lib/category-store.ts) mapped straight to tiles, same as MenuBody
+ * maps it to sidebar buttons, and filtered the same way: a category with
+ * nothing on the menu right now gets no tile, rather than a tile that lands
+ * on an empty section.
  */
 export default async function CategoriesPage() {
   const items = getMenuItems()
 
-  const categories: CategorySummary[] = CATEGORIES.map((category) => ({
+  const categories: CategorySummary[] = getCategories().map((category) => ({
     id: category.id,
     label: category.label,
     itemCount: items.filter((item) => item.category === category.id).length,

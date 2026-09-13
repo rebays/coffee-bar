@@ -52,7 +52,7 @@ export function StaffStoreStatus() {
   if (override === null || computed === null) return null
 
   return (
-    <div className="border-hairline rounded-tile flex flex-col gap-2 border p-4">
+    <div className="border-hairline bg-raised rounded-tile flex flex-col gap-2 border p-4">
       <div className="flex items-center justify-between gap-4">
         <span className="text-item">Store hours</span>
         <span className="text-small text-secondary">

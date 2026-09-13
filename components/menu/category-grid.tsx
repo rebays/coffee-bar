@@ -38,7 +38,7 @@ export function CategoryGrid({ categories }: { categories: CategorySummary[] }) 
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search categories"
-          className="rounded-tile bg-sunken text-body w-full px-4 py-3"
+          className="rounded-input bg-sunken text-body w-full px-4 py-3"
           style={{ blockSize: 'var(--control-md)' }}
         />
       </label>

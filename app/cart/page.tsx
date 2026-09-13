@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 
 import { MSelenProcessingOverlay } from '@/components/cart/mselen-processing-overlay'
 import { Button } from '@/components/ui/button'
+import { ItemThumbnail } from '@/components/ui/item-thumbnail'
 import { Stepper } from '@/components/ui/stepper'
 import { placeOrderAction } from '@/lib/actions/place-order'
 import { clearCart, getCartLines, removeLine, setLineQuantity, useCartSummary } from '@/lib/cart-store'
@@ -127,6 +128,7 @@ export default function CartPage() {
       <ul className="divide-hairline px-gutter mt-2 flex-1 divide-y">
         {resolved.map(({ line, item, customizations, unitPrice, lineTotal }) => (
           <li key={line.id} className="flex items-start gap-4 py-4">
+            <ItemThumbnail src={item.imageUrl} size={56} />
             <div className="min-w-0 flex-1">
               <p className="text-item">{item.name}</p>
               {customizations.length > 0 ? (
@@ -184,7 +186,7 @@ export default function CartPage() {
               placeholder="74XXXXX"
               value={mselenPhone}
               onChange={(event) => setMselenPhone(event.target.value)}
-              className="border-hairline rounded-tile text-body border p-3"
+              className="border-hairline rounded-input text-body border p-3"
             />
             <Button
               size="lg"

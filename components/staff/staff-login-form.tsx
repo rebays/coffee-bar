@@ -20,6 +20,7 @@ export function StaffLoginForm({ returnTo = '/staff' }: { returnTo?: '/staff' | 
 
   return (
     <main
+      data-surface="staff"
       className="mx-auto flex w-full flex-1 flex-col"
       style={{ maxInlineSize: 'var(--container-form)' }}
     >
@@ -37,7 +38,7 @@ export function StaffLoginForm({ returnTo = '/staff' }: { returnTo?: '/staff' | 
             type="text"
             autoComplete="name"
             required
-            className="border-hairline rounded-tile text-body border p-3"
+            className="border-hairline rounded-input text-body border p-3"
           />
         </div>
 
@@ -53,7 +54,7 @@ export function StaffLoginForm({ returnTo = '/staff' }: { returnTo?: '/staff' | 
             type="password"
             autoComplete="current-password"
             required
-            className="border-hairline rounded-tile text-body border p-3"
+            className="border-hairline rounded-input text-body border p-3"
           />
         </div>
 

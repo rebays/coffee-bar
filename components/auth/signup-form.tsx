@@ -28,7 +28,7 @@ export function SignupForm() {
           type="text"
           autoComplete="name"
           required
-          className="border-hairline rounded-tile text-body border p-3"
+          className="border-hairline rounded-input text-body border p-3"
         />
         {fieldErrors?.fullName ? <p className="text-danger-text text-small">{fieldErrors.fullName}</p> : null}
       </div>
@@ -45,7 +45,7 @@ export function SignupForm() {
           autoComplete="tel"
           placeholder="+677 7XXXXXX"
           required
-          className="border-hairline rounded-tile text-body border p-3"
+          className="border-hairline rounded-input text-body border p-3"
         />
         {fieldErrors?.phone ? <p className="text-danger-text text-small">{fieldErrors.phone}</p> : null}
       </div>
@@ -60,7 +60,7 @@ export function SignupForm() {
           type="password"
           autoComplete="new-password"
           required
-          className="border-hairline rounded-tile text-body border p-3"
+          className="border-hairline rounded-input text-body border p-3"
         />
         {fieldErrors?.password ? <p className="text-danger-text text-small">{fieldErrors.password}</p> : null}
       </div>
@@ -75,7 +75,7 @@ export function SignupForm() {
           type="password"
           autoComplete="new-password"
           required
-          className="border-hairline rounded-tile text-body border p-3"
+          className="border-hairline rounded-input text-body border p-3"
         />
         {fieldErrors?.confirmPassword ? (
           <p className="text-danger-text text-small">{fieldErrors.confirmPassword}</p>

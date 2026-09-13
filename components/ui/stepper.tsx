@@ -1,5 +1,7 @@
 'use client'
 
+type StepperSize = 'md' | 'lg'
+
 type StepperProps = {
   value: number
   onChange: (next: number) => void
@@ -9,6 +11,13 @@ type StepperProps = {
   itemLabel: string
   /** Fired instead of `onChange` when minus is pressed at `min`. */
   onRemove?: () => void
+  /** 'lg' matches a size="lg" Button sitting next to it — see item-order-form.tsx. */
+  size?: StepperSize
+}
+
+const CONTROL: Record<StepperSize, string> = {
+  md: 'var(--control-md)',
+  lg: 'var(--control-lg)',
 }
 
 /**
@@ -24,9 +33,11 @@ export function Stepper({
   max = 20,
   itemLabel,
   onRemove,
+  size = 'md',
 }: StepperProps) {
   const atMin = value <= min
   const removes = atMin && onRemove !== undefined
+  const controlSize = CONTROL[size]
 
   const segment = [
     'inline-flex items-center justify-center rounded-full text-primary',
@@ -35,14 +46,14 @@ export function Stepper({
   ].join(' ')
 
   const segmentStyle = {
-    blockSize: 'var(--control-md)',
-    inlineSize: 'var(--control-md)',
+    blockSize: controlSize,
+    inlineSize: controlSize,
   }
 
   return (
     <div
       className="inline-flex items-center rounded-full border border-hairline"
-      style={{ blockSize: 'var(--control-md)' }}
+      style={{ blockSize: controlSize }}
     >
       <button
         type="button"
@@ -60,7 +71,7 @@ export function Stepper({
 
       <span
         className="text-body text-center font-semibold"
-        style={{ minInlineSize: 'var(--control-md)' }}
+        style={{ minInlineSize: controlSize }}
         aria-live="polite"
         aria-label={`${value} ${itemLabel}`}
       >

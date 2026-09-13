@@ -11,6 +11,8 @@
  * hand-rolling a +11 offset — it stays correct even if this ever runs on a
  * server in a different timezone.
  */
+import { getWeeklyHours } from './shop-hours-store.ts'
+
 const TIME_ZONE = 'Pacific/Guadalcanal'
 
 export type DayHours = {
@@ -19,12 +21,10 @@ export type DayHours = {
   closesMinute: number
 }
 
-const WEEKDAY_HOURS: DayHours = { opensMinute: 7 * 60, closesMinute: 16 * 60 + 30 } // 7:00 AM – 4:30 PM
-const WEEKEND_HOURS: DayHours = { opensMinute: 7 * 60, closesMinute: 18 * 60 } // 7:00 AM – 6:00 PM
-
 /** 0 = Sunday … 6 = Saturday, matching Date.prototype.getDay's numbering. */
 function hoursForWeekday(weekday: number): DayHours {
-  return weekday === 0 || weekday === 6 ? WEEKEND_HOURS : WEEKDAY_HOURS
+  const hours = getWeeklyHours()
+  return weekday === 0 || weekday === 6 ? hours.weekend : hours.weekday
 }
 
 function formatClock(minutesFromMidnight: number): string {

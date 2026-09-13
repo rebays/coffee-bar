@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { ItemThumbnail } from '@/components/ui/item-thumbnail'
 import { Tag } from '@/components/ui/tag'
 import { addToCart } from '@/lib/cart-store'
 import { formatSBD, formatSBDSpoken } from '@/lib/money'
@@ -72,17 +73,20 @@ export function OrderHistoryCard({ order }: { order: OrderHistoryView }) {
 
       <ul className="flex flex-col gap-1">
         {order.lines.map((line, index) => (
-          <li key={index} className="text-body flex flex-col gap-0.5">
-            <div className="flex items-baseline justify-between gap-4">
-              <span>
-                {line.quantity} × {line.name}
-                {line.customizations.length > 0 ? (
-                  <span className="text-secondary"> ({line.customizations.join(', ')})</span>
-                ) : null}
-              </span>
-              <span className="text-price shrink-0">{formatSBD(line.lineTotal)}</span>
+          <li key={index} className="flex items-start gap-3">
+            <ItemThumbnail src={line.imageUrl} size={40} />
+            <div className="text-body min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-4">
+                <span>
+                  {line.quantity} × {line.name}
+                  {line.customizations.length > 0 ? (
+                    <span className="text-secondary"> ({line.customizations.join(', ')})</span>
+                  ) : null}
+                </span>
+                <span className="text-price shrink-0">{formatSBD(line.lineTotal)}</span>
+              </div>
+              {line.notes ? <p className="tasting-note">“{line.notes}”</p> : null}
             </div>
-            {line.notes ? <p className="tasting-note">“{line.notes}”</p> : null}
           </li>
         ))}
       </ul>
