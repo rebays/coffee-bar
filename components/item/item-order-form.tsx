@@ -90,7 +90,7 @@ export function ItemOrderForm({ item }: { item: MenuItem }) {
       </div>
 
       <div className="border-hairline bg-raised safe-bottom px-gutter sticky bottom-0 flex items-center gap-3 border-t py-3">
-        <Stepper value={quantity} onChange={setQuantity} itemLabel={item.name} />
+        <Stepper value={quantity} onChange={setQuantity} itemLabel={item.name} size="lg" />
         <Button size="lg" block disabled={item.soldOut} onClick={handleAdd}>
           Add to order · {formatSBD(total)}
         </Button>

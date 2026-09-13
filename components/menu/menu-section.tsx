@@ -36,7 +36,7 @@ export function MenuSection({
     >
       <h2
         id={`menu-section-${category}`}
-        className="text-section px-gutter pt-4 pb-1"
+        className="text-section text-secondary px-gutter pt-4 pb-1"
         style={{ scrollMarginTop: STATUS_STRIP_HEIGHT }}
       >
         {label}
