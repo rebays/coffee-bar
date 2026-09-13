@@ -609,6 +609,26 @@
   .animate-dialog-in {
     animation: dialog-in var(--dur-base) var(--ease-standard);
   }
+
+  /* Kitchen pipeline — a ticket mounting fresh into a column (a new order
+     arriving, or an existing one advancing a stage) answers that change with
+     motion, same rule as the rest of this section. Column-to-column movement
+     is a real unmount/remount (each column is a separate list), so this
+     naturally plays every time a ticket moves, not just on first arrival. */
+  @keyframes ticket-enter {
+    from {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-ticket-enter {
+    animation: ticket-enter var(--dur-slow) var(--ease-standard);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

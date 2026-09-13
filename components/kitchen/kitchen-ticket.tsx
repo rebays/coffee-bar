@@ -5,28 +5,43 @@ import { Tag } from '@/components/ui/tag'
 import { formatSBD } from '@/lib/money'
 import type { StaffOrderView } from '@/lib/orders/staff-view'
 
+const TAG: Record<'paid' | 'making' | 'ready', { label: string; variant: 'new' | 'live' }> = {
+  paid: { label: 'New', variant: 'new' },
+  making: { label: 'Making', variant: 'live' },
+  ready: { label: 'Ready', variant: 'live' },
+}
+
+const ACTION_LABEL: Record<'paid' | 'making' | 'ready', string> = {
+  paid: 'Start making',
+  making: 'Mark ready',
+  ready: 'Mark collected',
+}
+
 /**
  * A big-screen ticket, not the compact staff-dashboard row — kiosk density
- * is set by the parent, and the one action button reads a fuller label
- * ("Mark as Ready for Collection") than the dashboard's terser "Ready",
- * since this is meant to be read across a kitchen, not tapped from close up.
+ * is set by the parent, and action labels name the outcome ("Mark ready",
+ * "Mark collected") since this is meant to be read across a kitchen, not
+ * tapped from close up. Which action a ticket offers is entirely a function
+ * of which column it's rendered in (KitchenDashboard passes a zero-arg
+ * onAction already bound to that column's transition) — the ticket itself
+ * only needs to know its current state to label itself correctly.
  */
 export function KitchenTicket({
   order,
   pending,
   onAction,
 }: {
-  order: StaffOrderView
+  order: StaffOrderView & { state: 'paid' | 'making' | 'ready' }
   pending: boolean
-  onAction: (action: 'start_making' | 'ready') => void
+  onAction: () => void
 }) {
-  const isPaid = order.state === 'paid'
+  const tag = TAG[order.state]
 
   return (
-    <li className="border-hairline rounded-tile flex flex-col gap-3 border p-6">
+    <li className="border-hairline bg-ground rounded-tile animate-ticket-enter flex flex-col gap-3 border p-4">
       <div className="flex items-center justify-between gap-4">
-        <p className="text-title">{order.pickupCode}</p>
-        <Tag variant={isPaid ? 'new' : 'live'}>{isPaid ? 'New' : 'Making'}</Tag>
+        <p className="text-item">{order.pickupCode}</p>
+        <Tag variant={tag.variant}>{tag.label}</Tag>
       </div>
 
       <ul className="flex flex-col gap-1">
@@ -50,13 +65,8 @@ export function KitchenTicket({
         <span className="text-price">{formatSBD(order.total)}</span>
       </div>
 
-      <Button
-        size="lg"
-        block
-        disabled={pending}
-        onClick={() => onAction(isPaid ? 'start_making' : 'ready')}
-      >
-        {isPaid ? 'Start making' : 'Mark as Ready for Collection'}
+      <Button size="lg" block disabled={pending} onClick={onAction}>
+        {ACTION_LABEL[order.state]}
       </Button>
     </li>
   )

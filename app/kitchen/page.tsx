@@ -14,7 +14,7 @@ export default async function KitchenPage() {
   const session = await getStaffSession()
   if (!session) return <StaffLoginForm returnTo="/kitchen" />
 
-  const initialOrders = listOrders({ states: ['paid', 'making'] }).map(toStaffOrderView)
+  const initialOrders = listOrders({ states: ['paid', 'making', 'ready'] }).map(toStaffOrderView)
 
   return <KitchenDashboard initialOrders={initialOrders} />
 }
