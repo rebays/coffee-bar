@@ -4,6 +4,7 @@ import { ClosedNotice } from '@/components/menu/closed-notice'
 import { MenuBody } from '@/components/menu/menu-body'
 import { ServiceTypeSync } from '@/components/menu/service-type-sync'
 import { StatusStrip } from '@/components/menu/status-strip'
+import { SiteHeader } from '@/components/site-header'
 import { getCategories } from '@/lib/category-store'
 import { getMenuItems } from '@/lib/menu-store'
 import type { ServiceType } from '@/lib/service-context'
@@ -46,6 +47,7 @@ export default async function MenuPage(props: PageProps<'/menu'>) {
       {/* The document title already reads the shop's name — this labels the
           screen for assistive tech without duplicating that visually. */}
       <h1 className="sr-only">Menu</h1>
+      <SiteHeader />
       <Suspense fallback={null}>
         <ServiceTypeSync />
       </Suspense>
