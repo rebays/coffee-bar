@@ -1,8 +1,10 @@
-import { redirect } from 'next/navigation'
+import Image from 'next/image'
 
 import { HomeServiceCards } from '@/components/home/home-service-cards'
+import { QrEntryCard } from '@/components/home/qr-entry-card'
 import { StoreStatusBadge } from '@/components/home/store-status-badge'
 import { getShopState } from '@/lib/shop-state'
+import type { ServiceType } from '@/lib/service-context'
 
 function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value
@@ -10,12 +12,12 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 
 /**
  * QR entry point. A QR code encodes `?mode=` (and `?table=` for dine-in)
- * directly in its URL, so a scan never needs to see this screen at all —
- * it bypasses straight to /menu. This page only renders for someone who
- * opens the bare URL with no parameters, and exists to capture the one
- * thing a QR would otherwise have told us.
+ * directly in its URL — this page still renders for that visit (rather than
+ * bypassing straight to /menu) so a scan always sees the store's open/closed
+ * status first, just with the dine-in/takeaway choice already made for it
+ * (QrEntryCard) instead of the two manual cards a bare visit gets.
  *
- * The cards stay clickable regardless of open/closed — browsing (and
+ * The cards/CTA stay clickable regardless of open/closed — browsing (and
  * building a cart) is always allowed; only checkout itself is gated,
  * enforced where it actually matters: server-side in
  * lib/actions/place-order.ts, with the cart page disabling its own button
@@ -26,12 +28,8 @@ export default async function HomePage(props: PageProps<'/'>) {
   const mode = firstValue(params.mode)
   const table = firstValue(params.table)
 
-  if (mode === 'takeaway') {
-    redirect('/menu?mode=takeaway')
-  }
-  if (mode === 'dine-in' && table) {
-    redirect(`/menu?mode=dine-in&table=${encodeURIComponent(table)}`)
-  }
+  const qrServiceType: ServiceType | undefined =
+    mode === 'takeaway' ? 'takeaway' : mode === 'dine-in' && table ? 'dine-in' : undefined
 
   const shopState = getShopState()
 
@@ -41,6 +39,7 @@ export default async function HomePage(props: PageProps<'/'>) {
       style={{ maxInlineSize: 'var(--container-form)' }}
     >
       <div className="flex flex-col items-center gap-4">
+        <Image src="/logo.svg" alt="Coffee Bar" width={88} height={88} priority />
         <StoreStatusBadge state={shopState} />
         <div>
           <h1 className="text-title">
@@ -48,12 +47,18 @@ export default async function HomePage(props: PageProps<'/'>) {
           </h1>
           <p className="text-body text-secondary mt-2">
             {shopState.isOpen
-              ? 'How are you ordering today?'
+              ? qrServiceType
+                ? "You're all set — tap below when you're ready to order."
+                : 'How are you ordering today?'
               : `We open bright and early at ${shopState.opensAt}. Feel free to browse our menu!`}
           </p>
         </div>
       </div>
-      <HomeServiceCards />
+      {qrServiceType ? (
+        <QrEntryCard serviceType={qrServiceType} tableNumber={qrServiceType === 'dine-in' ? table : undefined} />
+      ) : (
+        <HomeServiceCards />
+      )}
     </main>
   )
 }

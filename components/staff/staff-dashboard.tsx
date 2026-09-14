@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -16,18 +17,20 @@ import { StaffHoursEditor } from './staff-hours-editor'
 import { StaffInventoryList } from './staff-inventory-list'
 import { StaffOrderCard } from './staff-order-card'
 import { StaffOrderHistory } from './staff-order-history'
+import { StaffQrGenerator } from './staff-qr-generator'
 import { StaffStatCard } from './staff-stat-card'
 import { StaffStoreStatus } from './staff-store-status'
 
 const POLL_INTERVAL_MS = 4000
 
-type View = 'overview' | 'orders' | 'history' | 'inventory' | 'settings'
+type View = 'overview' | 'orders' | 'history' | 'inventory' | 'qr' | 'settings'
 
 const NAV_ITEMS: { id: View; label: string }[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'orders', label: 'Orders' },
   { id: 'history', label: 'History' },
   { id: 'inventory', label: 'Inventory' },
+  { id: 'qr', label: 'Table QR codes' },
   { id: 'settings', label: 'Settings' },
 ]
 
@@ -122,9 +125,12 @@ export function StaffDashboard({
         className="border-hairline bg-raised flex shrink-0 flex-row items-center justify-between gap-2 border-b p-4 lg:sticky lg:top-0 lg:h-screen lg:w-(--spacing-sidebar) lg:flex-col lg:items-stretch lg:justify-between lg:border-r lg:border-b-0 lg:p-6"
       >
         <div className="flex flex-row items-center gap-3 lg:flex-col lg:items-stretch lg:gap-6" style={{ minInlineSize: 0 }}>
-          <div>
-            <p className="text-item hidden lg:block">Staff</p>
-            <p className="text-small text-secondary min-w-0 truncate lg:mt-1">{staffName}</p>
+          <div className="flex flex-row items-center gap-2 lg:flex-col lg:items-stretch">
+            <Image src="/logo.svg" alt="" width={28} height={28} className="lg:mb-1" />
+            <div>
+              <p className="text-item hidden lg:block">Staff</p>
+              <p className="text-small text-secondary min-w-0 truncate lg:mt-1">{staffName}</p>
+            </div>
           </div>
           <nav aria-label="Staff dashboard" className="flex flex-row gap-1 lg:flex-col">
             {NAV_ITEMS.map((item) => (
@@ -185,6 +191,8 @@ export function StaffDashboard({
         {view === 'inventory' ? (
           <StaffInventoryList initialItems={initialMenuItems} initialCategories={initialCategories} />
         ) : null}
+
+        {view === 'qr' ? <StaffQrGenerator /> : null}
 
         {view === 'settings' ? (
           <div className="flex max-w-2xl flex-col gap-4">

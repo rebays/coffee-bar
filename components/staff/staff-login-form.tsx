@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useActionState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -25,6 +26,7 @@ export function StaffLoginForm({ returnTo = '/staff' }: { returnTo?: '/staff' | 
       style={{ maxInlineSize: 'var(--container-form)' }}
     >
       <form action={formAction} className="flex flex-col gap-4 px-gutter py-8">
+        <Image src="/logo.svg" alt="" width={40} height={40} priority />
         <h1 className="text-title">Staff sign in</h1>
         <input type="hidden" name="returnTo" value={returnTo} />
 
