@@ -629,6 +629,30 @@
   .animate-ticket-enter {
     animation: ticket-enter var(--dur-slow) var(--ease-standard);
   }
+
+  /* Third documented §6 exception (see docs/DESIGN-SYSTEM.md): a slow, low-
+     amplitude breathing loop on the bottom nav's floating Menu circle, its
+     one always-on orientation cue. Deliberately not the coloured glow §5
+     reserves for the open-store badge — scale and opacity only, so it never
+     reads as decoration the way a cyan glow would. Not built from --dur-*:
+     those durations are tuned for sub-300ms interaction feedback, and a
+     breathing cadence is a different category of motion (ambient, not
+     answering a single action) with its own, much longer timing. */
+  @keyframes menu-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.045);
+      opacity: 0.92;
+    }
+  }
+
+  .animate-menu-pulse {
+    animation: menu-pulse 2.6s ease-in-out infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

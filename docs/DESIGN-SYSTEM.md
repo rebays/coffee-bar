@@ -345,6 +345,28 @@ library) elsewhere:
   in it whose entire purpose — animate a number when it changes — mapped onto a
   real, already-modeled piece of state.
 
+A second, equally narrow use: the bottom nav's floating centre "Menu" circle
+(`components/bottom-nav.tsx`) fires a small spark burst from the tap point on click —
+`components/ui/click-spark.tsx`, adapted from React Bits' `ClickSpark`. This passes
+the same test as the exception above: it only exists in response to the click itself
+(no hover, no idle animation — upstream's render loop is rewritten to stop once the
+canvas is empty rather than run forever), and it explicitly skips under
+`prefers-reduced-motion`.
+
+**A third exception, and a different kind of one:** that same circle also carries a
+slow, low-amplitude breathing loop (`animate-menu-pulse` in `app/globals.css`) — a
+scale between 100% and 104.5% and a matching opacity dip, on a 2.6s cycle. Unlike the
+two above, this one is genuinely idle, not event-triggered — it's the one deliberate
+concession in the system to "this button is how you get back to ordering from
+anywhere," an ambient cue rather than a response to anything the customer did. It's
+kept from becoming a precedent for idle motion generally by staying small on every
+axis that matters: one element, not a pattern; no colour (scale/opacity only, never
+the coloured glow §5 reserves for the open-store badge); and it still collapses to a
+single near-instant pass under `prefers-reduced-motion` via the global override above
+— nothing extra to wire up, since a CSS `animation`, unlike CountUp's spring, is
+already covered by it. If a future feature wants its own idle loop, that's a new
+instance of this same question, not something this one answers by precedent.
+
 ---
 
 ## 7. Components
