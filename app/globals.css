@@ -653,6 +653,30 @@
   .animate-menu-pulse {
     animation: menu-pulse 2.6s ease-in-out infinite;
   }
+
+  /* Cart icon's item-count badge — answers the same action as the (now
+     superseded) cart bar's count-swap once did: something was just added
+     or removed. Plays on every count change via a key remount in
+     components/bottom-nav.tsx, not a persisted DOM node whose text mutates,
+     so a pop-in (scale + fade) reads more honestly than a value swap would. */
+  @keyframes badge-pop {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-badge-pop {
+    animation: badge-pop var(--dur-slow) var(--ease-standard);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

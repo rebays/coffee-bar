@@ -123,7 +123,19 @@ export function BottomNav() {
           }
           className={actionClass}
         >
-          <CartIcon />
+          <span className="relative inline-flex shrink-0">
+            <CartIcon />
+            {itemCount > 0 ? (
+              <span
+                key={itemCount}
+                aria-hidden="true"
+                className="animate-badge-pop bg-danger text-on-danger absolute -end-1.5 -top-1.5 inline-flex items-center justify-center rounded-full px-1 text-[10px] leading-none font-bold"
+                style={{ minInlineSize: '1rem', blockSize: '1rem' }}
+              >
+                {itemCount > 9 ? '9+' : itemCount}
+              </span>
+            ) : null}
+          </span>
           <span className="min-w-0 truncate">{cartLabel}</span>
         </Link>
       </nav>
