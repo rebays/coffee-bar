@@ -329,6 +329,22 @@ happens.
 `prefers-reduced-motion: reduce` collapses all durations to 0.01ms and replaces the
 count swap with an instant value change.
 
+**One further exception, by deliberate product decision:** the status strip's wait
+figure (`state.waitMinutes`) may spring to a new value when it *changes* —
+`components/ui/count-up.tsx`, adapted from React Bits' `CountUp`. This is scoped
+narrowly and is not a general license to reach for React Bits (or any animation
+library) elsewhere:
+
+- It never plays on mount or on scroll — the number renders statically until the
+  underlying value actually changes, the same "answers an action" test everything
+  else in this section passes.
+- It explicitly checks `prefers-reduced-motion` in JS (the CSS override above can't
+  reach a JS-driven spring) and jumps instantly instead of animating.
+- No other React Bits component is in use. Its catalog is mostly hover/scroll/
+  decorative effects that this section rules out by name; this is the one component
+  in it whose entire purpose — animate a number when it changes — mapped onto a
+  real, already-modeled piece of state.
+
 ---
 
 ## 7. Components

@@ -1,3 +1,4 @@
+import { CountUp } from '@/components/ui/count-up'
 import type { ServiceType } from '@/lib/service-context'
 import type { ShopState } from '@/lib/types'
 
@@ -20,7 +21,7 @@ export function StatusStrip({
   // and the palette has no green at all. Open/closed reads through copy
   // alone, exactly as docs/DESIGN-SYSTEM.md §7 already specifies.
   const text = state.isOpen
-    ? `Open now · Closes at ${state.closesAt}`
+    ? `Open now · Closes at ${state.closesAt} · ~`
     : `Closed · Opens ${state.opensAgainToday ? 'today' : 'tomorrow'} at ${state.opensAt}`
 
   // Table number only means anything for dine-in — a takeaway order carrying
@@ -37,7 +38,15 @@ export function StatusStrip({
       className="bg-structure text-on-structure px-gutter sticky top-0 z-20 flex items-center justify-between gap-2"
       style={{ blockSize: STATUS_STRIP_HEIGHT }}
     >
-      <p className="text-small">{text}</p>
+      <p className="text-small">
+        {text}
+        {state.isOpen ? (
+          <>
+            <CountUp value={state.waitMinutes} />
+            {' min'}
+          </>
+        ) : null}
+      </p>
       {serviceLabel ? <p className="text-small font-semibold">{serviceLabel}</p> : null}
     </div>
   )
