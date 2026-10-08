@@ -10,7 +10,7 @@ import type { Category, MenuItem, RoastLevel } from './types.ts'
  * built for step 10, not something the edit form touches, so the two
  * features can never fight over the same field.
  */
-export type MenuItemFields = Omit<MenuItem, 'slug' | 'soldOut'>
+export type MenuItemFields = Omit<MenuItem, 'slug' | 'soldOut' | 'todaysSpecial'>
 
 const ROAST_VALUES: readonly RoastLevel[] = ['light', 'medium', 'dark']
 

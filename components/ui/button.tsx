@@ -24,7 +24,7 @@ const TEXT: Record<ButtonSize, string> = {
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-accent text-on-accent hover:bg-accent-hover active:bg-accent-active',
   secondary:
-    'bg-transparent text-primary border border-hairline hover:bg-sunken active:bg-sunken',
+    'bg-transparent text-primary border border-line-strong hover:bg-sunken active:bg-sunken',
   ghost: 'bg-transparent text-accent hover:bg-accent-subtle active:bg-accent-subtle',
   // The label inverts with the fill: --danger lightens on a black ground, so
   // white text there would land at 3.6:1.
@@ -54,7 +54,7 @@ export function Button({
       // Disabled swaps the fill rather than dropping opacity, which would take
       // the label below the contrast floor.
       className={[
-        'inline-flex items-center justify-center gap-2 rounded-full font-semibold',
+        'rounded-control inline-flex items-center justify-center gap-2 font-semibold',
         'transition-[background-color,color] duration-(--dur-fast) ease-(--ease-standard)',
         'disabled:pointer-events-none disabled:border-transparent',
         'disabled:bg-disabled disabled:text-disabled-text',

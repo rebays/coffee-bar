@@ -1,4 +1,6 @@
+import { Coffee } from 'lucide-react'
 import Image from 'next/image'
+import type { ReactNode } from 'react'
 
 /**
  * A small square photo, for anywhere an item or order line is listed
@@ -15,8 +17,16 @@ export function ItemThumbnail({
   src,
   size = 48,
   muted = false,
+  fallback,
 }: {
   src?: string
+  /**
+   * Drawn when there's no photo, filling the frame — callers that know the
+   * item's category pass its CategoryIllustration. Without one, the shop's
+   * cup mark stands in, so a missing photo reads as a placeholder rather
+   * than an image still loading.
+   */
+  fallback?: ReactNode
   /** Pixels, square. */
   size?: number
   /** Sold out / no longer on the menu — a quiet dim, paired elsewhere with a text label, never the only signal. */
@@ -24,7 +34,10 @@ export function ItemThumbnail({
 }) {
   return (
     <div
-      className="bg-skeleton rounded-tile relative shrink-0 overflow-hidden"
+      className={[
+        'rounded-tile border-hairline relative flex shrink-0 items-center justify-center overflow-hidden border',
+        src ? 'bg-skeleton' : 'bg-accent-subtle text-brand',
+      ].join(' ')}
       style={{ inlineSize: size, blockSize: size }}
     >
       {src ? (
@@ -36,7 +49,14 @@ export function ItemThumbnail({
           sizes={`${size}px`}
           className={['object-cover', muted ? 'opacity-50' : ''].filter(Boolean).join(' ')}
         />
-      ) : null}
+      ) : (
+        <span
+          aria-hidden="true"
+          className={['absolute inset-0 flex items-center justify-center', muted ? 'opacity-50' : ''].join(' ')}
+        >
+          {fallback ?? <Coffee size={Math.round(size * 0.42)} strokeWidth={1.75} />}
+        </span>
+      )}
     </div>
   )
 }

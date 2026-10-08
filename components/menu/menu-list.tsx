@@ -1,6 +1,6 @@
 import type { MenuItem } from '@/lib/types'
 
-import { MenuRow } from './menu-row'
+import { MenuItemCard } from './menu-item-card'
 
 /**
  * A hairline divides consecutive rows only — `divide-y` never draws one
@@ -18,7 +18,7 @@ export function MenuList({
   return (
     <ul className="divide-hairline px-gutter divide-y">
       {items.map((item) => (
-        <MenuRow key={item.slug} item={item} orderingDisabled={orderingDisabled} />
+        <MenuItemCard key={item.slug} item={item} orderingDisabled={orderingDisabled} />
       ))}
     </ul>
   )

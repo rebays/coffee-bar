@@ -11,21 +11,23 @@ import type { MenuItem } from '@/lib/types'
  * the Next.js server never fetches an arbitrary staff-supplied URL itself.
  */
 export function ItemImage({ item }: { item: MenuItem }) {
+  // No photo, no hero: an empty 16:9 block would read as an image still
+  // loading. The sheet starts at the item's name instead.
+  if (!item.imageUrl) return null
+
   return (
     <div
       className="bg-skeleton relative aspect-video overflow-hidden"
       style={{ borderRadius: 'var(--radius-tile)' }}
     >
-      {item.imageUrl ? (
-        <Image
-          src={item.imageUrl}
-          alt=""
-          fill
-          unoptimized
-          sizes="(min-width: 640px) 520px, 100vw"
-          className="object-cover"
-        />
-      ) : null}
+      <Image
+        src={item.imageUrl}
+        alt=""
+        fill
+        unoptimized
+        sizes="(min-width: 640px) 520px, 100vw"
+        className="object-cover"
+      />
     </div>
   )
 }

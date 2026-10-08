@@ -107,7 +107,7 @@ export function OrderHistoryCard({ order }: { order: OrderHistoryView }) {
         <Link
           href={`/orders/${order.id}/receipt`}
           target="_blank"
-          className="border-hairline text-primary hover:bg-sunken text-body inline-flex items-center justify-center rounded-full border px-4 font-semibold"
+          className="border-hairline text-primary hover:bg-sunken text-body rounded-control inline-flex items-center justify-center border px-4 font-semibold"
           style={{ blockSize: 'var(--control-md)' }}
         >
           Print receipt

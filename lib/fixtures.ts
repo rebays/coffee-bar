@@ -123,6 +123,7 @@ export const MENU: MenuItem[] = [
     basePrice: 3500,
     category: 'best-sellers',
     tags: [],
+    imageUrl: '/menu/coconut-iced-coffee.jpg',
     optionGroupIds: ['sweetness-standard'],
   },
   {
@@ -134,6 +135,7 @@ export const MENU: MenuItem[] = [
     basePrice: 7000,
     category: 'best-sellers',
     tags: [],
+    imageUrl: '/menu/island-fish-sandwich.jpg',
     optionGroupIds: ['side-sandwich'],
   },
 
@@ -146,6 +148,7 @@ export const MENU: MenuItem[] = [
     basePrice: 2500,
     category: 'coffee',
     tags: ['Nut-Free'],
+    imageUrl: '/menu/espresso.jpg',
     optionGroupIds: ['temperature-hot-default', 'sweetness-black'],
   },
   {
@@ -156,6 +159,7 @@ export const MENU: MenuItem[] = [
     basePrice: 3000,
     category: 'coffee',
     tags: [],
+    imageUrl: '/menu/flat-white.jpg',
     optionGroupIds: ['temperature-hot-default', 'milk', 'sweetness-standard'],
   },
   {
@@ -166,6 +170,7 @@ export const MENU: MenuItem[] = [
     basePrice: 3000,
     category: 'coffee',
     tags: ['Nut-Free'],
+    imageUrl: '/menu/long-black.jpg',
     optionGroupIds: ['temperature-hot-default', 'sweetness-black'],
   },
   {
@@ -176,6 +181,7 @@ export const MENU: MenuItem[] = [
     basePrice: 3200,
     category: 'coffee',
     tags: ['Iced', 'Nut-Free'],
+    imageUrl: '/menu/cold-brew.jpg',
     optionGroupIds: ['sweetness-standard'],
   },
 
@@ -188,6 +194,7 @@ export const MENU: MenuItem[] = [
     basePrice: 1500,
     category: 'tea-refreshers',
     tags: ['VG', 'GF'],
+    imageUrl: '/menu/fresh-green-coconut.jpg',
     optionGroupIds: ['sweetness-standard'],
   },
   {
@@ -198,6 +205,7 @@ export const MENU: MenuItem[] = [
     basePrice: 2500,
     category: 'tea-refreshers',
     tags: ['V', 'GF', 'Nut-Free'],
+    imageUrl: '/menu/fresh-lime-honey-juice.jpg',
     optionGroupIds: ['temperature-iced-default', 'sweetness-standard'],
   },
   {
@@ -208,6 +216,7 @@ export const MENU: MenuItem[] = [
     basePrice: 2500,
     category: 'tea-refreshers',
     tags: ['VG', 'GF', 'Nut-Free'],
+    imageUrl: '/menu/iced-hibiscus-tea.jpg',
     optionGroupIds: ['temperature-iced-default', 'sweetness-standard'],
   },
   {
@@ -218,6 +227,7 @@ export const MENU: MenuItem[] = [
     basePrice: 3500,
     category: 'tea-refreshers',
     tags: ['V', 'Nut-Free'],
+    imageUrl: '/menu/matcha-latte.jpg',
     optionGroupIds: ['temperature-hot-default', 'sweetness-standard'],
   },
 
@@ -230,6 +240,7 @@ export const MENU: MenuItem[] = [
     basePrice: 7500,
     category: 'mains',
     tags: ['GF'],
+    imageUrl: '/menu/creamy-coconut-chicken.jpg',
     optionGroupIds: ['side-mains'],
   },
   {
@@ -240,6 +251,7 @@ export const MENU: MenuItem[] = [
     basePrice: 8500,
     category: 'mains',
     tags: ['GF'],
+    imageUrl: '/menu/garlic-butter-prawn-bowl.jpg',
     optionGroupIds: ['side-mains'],
   },
 
@@ -252,6 +264,7 @@ export const MENU: MenuItem[] = [
     basePrice: 9900,
     category: 'sandwich',
     tags: [],
+    imageUrl: '/menu/chicken-pesto-sandwich.jpg',
     optionGroupIds: ['side-sandwich'],
   },
   {
@@ -262,6 +275,7 @@ export const MENU: MenuItem[] = [
     basePrice: 8600,
     category: 'sandwich',
     tags: ['Nut-Free'],
+    imageUrl: '/menu/chicken-avocado.jpg',
     optionGroupIds: ['side-sandwich'],
   },
   {
@@ -272,6 +286,7 @@ export const MENU: MenuItem[] = [
     basePrice: 8900,
     category: 'sandwich',
     tags: ['Nut-Free'],
+    imageUrl: '/menu/ham-cheese-toastie.jpg',
     optionGroupIds: ['side-sandwich'],
   },
 
@@ -284,6 +299,7 @@ export const MENU: MenuItem[] = [
     basePrice: 9600,
     category: 'salad',
     tags: [],
+    imageUrl: '/menu/caesar-salad.jpg',
     optionGroupIds: [],
   },
   {
@@ -294,6 +310,7 @@ export const MENU: MenuItem[] = [
     basePrice: 9600,
     category: 'salad',
     tags: ['VG', 'GF', 'Nut-Free'],
+    imageUrl: '/menu/garden-salad.jpg',
     optionGroupIds: [],
   },
   {
@@ -304,6 +321,7 @@ export const MENU: MenuItem[] = [
     basePrice: 9800,
     category: 'salad',
     tags: ['V', 'GF', 'Nut-Free'],
+    imageUrl: '/menu/greek-salad.jpg',
     optionGroupIds: [],
   },
 
@@ -316,6 +334,7 @@ export const MENU: MenuItem[] = [
     basePrice: 3000,
     category: 'sides',
     tags: ['V', 'GF', 'Nut-Free'],
+    imageUrl: '/menu/cassava-chips.jpg',
     optionGroupIds: [],
   },
   {
@@ -326,6 +345,7 @@ export const MENU: MenuItem[] = [
     basePrice: 3500,
     category: 'sides',
     tags: ['V', 'GF', 'Nut-Free'],
+    imageUrl: '/menu/kumara-chips.jpg',
     optionGroupIds: [],
   },
 
@@ -338,6 +358,7 @@ export const MENU: MenuItem[] = [
     basePrice: 2500,
     category: 'bakery-desserts',
     tags: ['V'],
+    imageUrl: '/menu/pineapple-cake.jpg',
     optionGroupIds: [],
   },
   {
@@ -348,6 +369,7 @@ export const MENU: MenuItem[] = [
     basePrice: 2000,
     category: 'bakery-desserts',
     tags: ['V'],
+    imageUrl: '/menu/banana-bread.jpg',
     optionGroupIds: [],
   },
   {
@@ -358,6 +380,7 @@ export const MENU: MenuItem[] = [
     basePrice: 2000,
     category: 'bakery-desserts',
     tags: ['V'],
+    imageUrl: '/menu/coconut-scone.jpg',
     optionGroupIds: [],
   },
   {
@@ -368,6 +391,7 @@ export const MENU: MenuItem[] = [
     basePrice: 2500,
     category: 'bakery-desserts',
     tags: ['V'],
+    imageUrl: '/menu/butter-croissant.jpg',
     optionGroupIds: [],
   },
 ]

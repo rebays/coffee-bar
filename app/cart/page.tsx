@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 
 import { MSelenProcessingOverlay } from '@/components/cart/mselen-processing-overlay'
 import { Button } from '@/components/ui/button'
+import { CategoryIllustration } from '@/components/menu/category-illustration'
 import { ItemThumbnail } from '@/components/ui/item-thumbnail'
 import { Stepper } from '@/components/ui/stepper'
 import { placeOrderAction } from '@/lib/actions/place-order'
@@ -125,17 +126,21 @@ export default function CartPage() {
         <h1 className="text-title">Your order</h1>
       </div>
 
-      <ul className="divide-hairline px-gutter mt-2 flex-1 divide-y">
+      <ul className="surface-card divide-hairline mx-gutter mt-4 divide-y px-4">
         {resolved.map(({ line, item, customizations, unitPrice, lineTotal }) => (
           <li key={line.id} className="flex items-start gap-4 py-4">
-            <ItemThumbnail src={item.imageUrl} size={56} />
+            <ItemThumbnail
+              src={item.imageUrl}
+              size={56}
+              fallback={<CategoryIllustration category={item.category} fit="contain" />}
+            />
             <div className="min-w-0 flex-1">
               <p className="text-item">{item.name}</p>
               {customizations.length > 0 ? (
                 <p className="text-body text-secondary">{customizations.join(' · ')}</p>
               ) : null}
               {line.notes ? <p className="tasting-note mt-1">“{line.notes}”</p> : null}
-              <p className="text-spec wdth-condensed text-tertiary mt-1">
+              <p className="text-spec text-tertiary mt-1">
                 {formatSBD(unitPrice)} each
               </p>
             </div>
@@ -154,51 +159,71 @@ export default function CartPage() {
         ))}
       </ul>
 
-      <div className="border-hairline bg-raised safe-bottom px-gutter sticky bottom-0 flex flex-col gap-3 border-t py-4">
-        {error ? (
-          <p className="text-danger-text text-small">{error}</p>
-        ) : shopClosed ? (
-          <p className="text-danger-text text-small">
-            {`The shop's closed right now — opens ${shopState!.opensAgainToday ? 'today' : 'tomorrow'} at ${shopState!.opensAt}.`}
-          </p>
-        ) : null}
-        <div className="flex items-center justify-between">
-          <span className="text-body text-secondary">
+      <section aria-label="Order summary" className="surface-card mx-gutter mt-4 mb-4 flex flex-col gap-2 p-4">
+        <h2 className="text-item">Order summary</h2>
+        <div className="text-body text-secondary flex items-center justify-between">
+          <span>
             {itemCount} {itemCount === 1 ? 'item' : 'items'}
           </span>
+          <span aria-label={formatSBDSpoken(total)}>{formatSBD(total)}</span>
+        </div>
+        <div className="text-body text-secondary flex items-center justify-between">
+          <span>Payment</span>
+          <span>At the counter</span>
+        </div>
+        <div className="border-hairline flex items-center justify-between border-t pt-2">
+          <span className="text-body font-semibold">Total</span>
           <span className="text-price" aria-label={formatSBDSpoken(total)}>
             SBD {formatSBD(total)}
           </span>
         </div>
-        <Button size="lg" block disabled={pending || shopClosed} onClick={() => submit('counter')}>
-          {pending ? 'Placing order…' : 'Place order'}
-        </Button>
-        {shopState?.demoMode ? (
-          <div className="flex flex-col gap-2">
-            <label htmlFor="mselen-phone" className="text-small text-secondary">
-              M-SELEN mobile number
-            </label>
-            <input
-              id="mselen-phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel"
-              placeholder="74XXXXX"
-              value={mselenPhone}
-              onChange={(event) => setMselenPhone(event.target.value)}
-              className="border-hairline rounded-input text-body border p-3"
-            />
-            <Button
-              size="lg"
-              block
-              variant="secondary"
-              disabled={pending || shopClosed || !mselenPhoneValid}
-              onClick={() => submit('mselen')}
-            >
-              Pay with M-SELEN
-            </Button>
-          </div>
-        ) : null}
+      </section>
+
+      {/* The floating checkout: a rounded card pinned above the bottom edge
+          (sticky, so it settles at the end of a short order rather than
+          covering it), lifted by the float shadow. */}
+      <div className="safe-bottom px-gutter sticky bottom-0 mt-auto pb-4">
+        <div
+          className="bg-raised shadow-float flex flex-col gap-3 p-4"
+          style={{ borderRadius: 'var(--radius-sheet)' }}
+        >
+          {error ? (
+            <p className="text-danger-text text-small">{error}</p>
+          ) : shopClosed ? (
+            <p className="text-danger-text text-small">
+              {`The shop's closed right now — opens ${shopState!.opensAgainToday ? 'today' : 'tomorrow'} at ${shopState!.opensAt}.`}
+            </p>
+          ) : null}
+          <Button size="lg" block disabled={pending || shopClosed} onClick={() => submit('counter')}>
+            {pending ? 'Placing order…' : `Place order · ${formatSBD(total)}`}
+          </Button>
+          {shopState?.demoMode ? (
+            <div className="flex flex-col gap-2">
+              <label htmlFor="mselen-phone" className="text-small text-secondary">
+                M-SELEN mobile number
+              </label>
+              <input
+                id="mselen-phone"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                placeholder="74XXXXX"
+                value={mselenPhone}
+                onChange={(event) => setMselenPhone(event.target.value)}
+                className="border-line-strong rounded-input bg-sunken text-body border p-3"
+              />
+              <Button
+                size="lg"
+                block
+                variant="secondary"
+                disabled={pending || shopClosed || !mselenPhoneValid}
+                onClick={() => submit('mselen')}
+              >
+                Pay with M-SELEN
+              </Button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </main>
   )

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="2000" height="2000" viewBox="0 0 878 878" xmlns:c2pa="http://c2pa.org/manifest">
-  <!-- Outer white border -->
+  <!-- Outer border -->
   <circle cx="439" cy="439" r="429" fill="#FFFFFF"/>
-  <!-- Teal ring -->
-  <circle cx="439" cy="439" r="418" fill="#4FAFB8"/>
-  <!-- Inner white ring border -->
+  <!-- Ring -->
+  <circle cx="439" cy="439" r="418" fill="#0D9488"/>
+  <!-- Inner ring border -->
   <circle cx="439" cy="439" r="361" fill="#FFFFFF"/>
-  <!-- Charcoal inner circle -->
-  <circle cx="439" cy="439" r="351" fill="#454341"/>
+  <!-- Inner circle -->
+  <circle cx="439" cy="439" r="351" fill="#134E4A"/>
   <!-- Traced artwork (text + cup), scaled down from 4x tracing resolution -->
   <g transform="scale(0.25)">
     <g transform="translate(0.000000,3512.000000) scale(0.100000,-0.100000)"

@@ -5,14 +5,25 @@ import { canTransition } from './state-machine.ts'
 import { __resetOrderStoreForTests, createOrder } from './store.ts'
 import { STAFF_ACTION_TARGET_STATE, staffActionsForState, toStaffOrderView } from './staff-view.ts'
 import type { OrderActor, OrderLine } from './types.ts'
+import { __resetMenuStoreForTests, getMenuItem, updateMenuItem } from '../menu-store.ts'
 
 const CUSTOMER: OrderActor = { type: 'customer', deviceToken: 'super-secret-device-token' }
 const LINES: OrderLine[] = [
   { slug: 'flat-white', name: 'Flat white', customizations: [], quantity: 1, unitPrice: 3800, lineTotal: 3800 },
 ]
 
+/** The seed menu ships without photos, so the photo test gives one item a photo itself. */
+const PHOTO = '/uploads/menu/test-flat-white.jpg'
+
+function giveFlatWhiteAPhoto() {
+  const item = getMenuItem('flat-white')
+  assert.ok(item)
+  updateMenuItem('flat-white', { ...item, imageUrl: PHOTO })
+}
+
 test.beforeEach(() => {
   __resetOrderStoreForTests()
+  __resetMenuStoreForTests()
 })
 
 test('the staff view never carries the device token', () => {
@@ -35,6 +46,7 @@ test('the staff view carries what the dashboard needs', () => {
     CUSTOMER,
   )
 
+  giveFlatWhiteAPhoto()
   const view = toStaffOrderView(order)
 
   assert.equal(view.id, order.id)
@@ -42,7 +54,8 @@ test('the staff view carries what the dashboard needs', () => {
   assert.equal(view.total, 3800)
   assert.equal(view.state, 'placed')
   assert.equal(view.createdAt, order.createdAt)
-  assert.deepEqual(view.lines, order.lines)
+  // Views attach the item's current catalog photo; the stored order never carries one.
+  assert.deepEqual(view.lines, [{ ...order.lines[0], imageUrl: PHOTO }])
 })
 
 test('start_making is hidden from awaiting_payment unless the flag is on', () => {

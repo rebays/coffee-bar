@@ -67,6 +67,37 @@ export function StaffInventoryList({
     setPendingSlug(null)
   }
 
+  async function handleSpecialToggle(item: MenuItem) {
+    setPendingSlug(item.slug)
+
+    const response = await fetch(`/api/staff/menu/${item.slug}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ todaysSpecial: !item.todaysSpecial }),
+    })
+
+    if (response.ok) {
+      const updated: MenuItem = await response.json()
+      // Only one special at a time — the server already cleared the previous
+      // holder, so mirror that here rather than refetching the whole list.
+      setItems((prev) =>
+        prev.map((existing) =>
+          existing.slug === updated.slug
+            ? updated
+            : updated.todaysSpecial && existing.todaysSpecial
+              ? { ...existing, todaysSpecial: false }
+              : existing,
+        ),
+      )
+      showToast(
+        updated.todaysSpecial ? `${updated.name} is today's special` : `${updated.name} removed as today's special`,
+      )
+    } else {
+      showToast('That failed — try again.', 'error')
+    }
+    setPendingSlug(null)
+  }
+
   async function handleReorder(slug: string, direction: 'up' | 'down') {
     setPendingSlug(slug)
 
@@ -337,7 +368,7 @@ export function StaffInventoryList({
                   <span className="text-tertiary">
                     <CategoryIcon category={category.id} />
                   </span>
-                  <h2 className="text-spec wdth-condensed text-secondary">{category.label}</h2>
+                  <h2 className="text-spec text-secondary">{category.label}</h2>
                 </div>
               )}
 
@@ -374,10 +405,11 @@ export function StaffInventoryList({
                             <div className="flex flex-wrap items-baseline gap-2">
                               <span className="min-w-0 text-item">{item.name}</span>
                               {item.soldOut ? <Tag variant="sold-out">Sold out</Tag> : null}
+                              {item.todaysSpecial ? <Tag variant="special">Today&apos;s special</Tag> : null}
                             </div>
                             <span
                               className={[
-                                'text-spec wdth-condensed text-tertiary',
+                                'text-spec text-tertiary',
                                 item.soldOut ? 'line-through' : '',
                               ]
                                 .filter(Boolean)
@@ -420,6 +452,19 @@ export function StaffInventoryList({
                           {item.soldOut ? <CheckCircleIcon /> : <SlashCircleIcon />}
                         </IconActionButton>
                         <IconActionButton
+                          label={
+                            item.todaysSpecial
+                              ? `Remove ${item.name} as today's special`
+                              : `Make ${item.name} today's special`
+                          }
+                          variant={item.todaysSpecial ? 'highlight' : 'neutral'}
+                          pressed={Boolean(item.todaysSpecial)}
+                          disabled={pendingSlug === item.slug}
+                          onClick={() => handleSpecialToggle(item)}
+                        >
+                          <StarIcon filled={Boolean(item.todaysSpecial)} />
+                        </IconActionButton>
+                        <IconActionButton
                           label={`Edit ${item.name}`}
                           disabled={pendingSlug === item.slug}
                           onClick={() => setEditing({ mode: 'edit', slug: item.slug })}
@@ -447,10 +492,11 @@ export function StaffInventoryList({
                         <div className="flex flex-wrap items-baseline gap-2">
                           <span className="min-w-0 truncate text-item">{item.name}</span>
                           {item.soldOut ? <Tag variant="sold-out">Sold out</Tag> : null}
+                              {item.todaysSpecial ? <Tag variant="special">Today&apos;s special</Tag> : null}
                         </div>
                         <span
                           className={[
-                            'text-spec wdth-condensed text-tertiary',
+                            'text-spec text-tertiary',
                             item.soldOut ? 'line-through' : '',
                           ]
                             .filter(Boolean)
@@ -488,6 +534,19 @@ export function StaffInventoryList({
                           onClick={() => handleToggle(item)}
                         >
                           {item.soldOut ? <CheckCircleIcon /> : <SlashCircleIcon />}
+                        </IconActionButton>
+                        <IconActionButton
+                          label={
+                            item.todaysSpecial
+                              ? `Remove ${item.name} as today's special`
+                              : `Make ${item.name} today's special`
+                          }
+                          variant={item.todaysSpecial ? 'highlight' : 'neutral'}
+                          pressed={Boolean(item.todaysSpecial)}
+                          disabled={pendingSlug === item.slug}
+                          onClick={() => handleSpecialToggle(item)}
+                        >
+                          <StarIcon filled={Boolean(item.todaysSpecial)} />
                         </IconActionButton>
                         <IconActionButton
                           label={`Edit ${item.name}`}
@@ -530,18 +589,22 @@ function IconActionButton({
   onClick,
   disabled,
   variant = 'neutral',
+  pressed,
   children,
 }: {
   label: string
   onClick: () => void
   disabled?: boolean
-  variant?: 'neutral' | 'danger'
+  variant?: 'neutral' | 'danger' | 'highlight'
+  /** Set for toggles, so the on state isn't carried by fill colour alone. */
+  pressed?: boolean
   children: ReactNode
 }) {
   return (
     <button
       type="button"
       aria-label={label}
+      aria-pressed={pressed}
       title={label}
       disabled={disabled}
       onClick={onClick}
@@ -550,12 +613,27 @@ function IconActionButton({
         'disabled:pointer-events-none disabled:border-transparent disabled:bg-disabled disabled:text-disabled-text',
         variant === 'danger'
           ? 'bg-danger text-on-danger hover:brightness-110 active:brightness-95'
-          : 'border-hairline text-secondary border hover:bg-sunken',
+          : variant === 'highlight'
+            ? 'bg-highlight text-on-highlight'
+            : 'border-hairline text-secondary border hover:bg-sunken',
       ].join(' ')}
       style={{ inlineSize: '2.25rem', blockSize: '2.25rem' }}
     >
       {children}
     </button>
+  )
+}
+
+function StarIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill={filled ? 'currentColor' : 'none'}>
+      <path
+        d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9L12 3.5Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 

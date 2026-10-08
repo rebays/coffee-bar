@@ -1,12 +1,13 @@
 import { Suspense } from 'react'
 
+import { Header } from '@/components/header'
 import { ClosedNotice } from '@/components/menu/closed-notice'
 import { MenuBody } from '@/components/menu/menu-body'
+import { MenuHero } from '@/components/menu/menu-hero'
 import { ServiceTypeSync } from '@/components/menu/service-type-sync'
-import { StatusStrip } from '@/components/menu/status-strip'
-import { SiteHeader } from '@/components/site-header'
+import { TodaysSpecialCard } from '@/components/menu/todays-special-card'
 import { getCategories } from '@/lib/category-store'
-import { getMenuItems } from '@/lib/menu-store'
+import { getMenuItems, getTodaysSpecial } from '@/lib/menu-store'
 import type { ServiceType } from '@/lib/service-context'
 import { peekServiceContext } from '@/lib/service-context-server'
 import { getShopState } from '@/lib/shop-state'
@@ -32,6 +33,7 @@ export default async function MenuPage(props: PageProps<'/menu'>) {
   const serviceType: ServiceType | undefined =
     modeParam === 'dine-in' || modeParam === 'takeaway' ? modeParam : (cookieContext.serviceType ?? undefined)
   const tableNumber = firstValue(params.table) ?? cookieContext.tableNumber ?? undefined
+  const special = getTodaysSpecial()
 
   return (
     <main
@@ -47,13 +49,22 @@ export default async function MenuPage(props: PageProps<'/menu'>) {
       {/* The document title already reads the shop's name — this labels the
           screen for assistive tech without duplicating that visually. */}
       <h1 className="sr-only">Menu</h1>
-      <SiteHeader />
+      <Header state={shopState} serviceType={serviceType} tableNumber={tableNumber} />
       <Suspense fallback={null}>
         <ServiceTypeSync />
       </Suspense>
+      <MenuHero />
       <ClosedNotice isOpen={shopState.isOpen} opensAt={shopState.opensAt} />
-      <StatusStrip state={shopState} serviceType={serviceType} tableNumber={tableNumber} />
-      <MenuBody items={getMenuItems()} categories={getCategories()} orderingDisabled={!shopState.isOpen} />
+      <MenuBody
+        items={getMenuItems()}
+        categories={getCategories()}
+        orderingDisabled={!shopState.isOpen}
+        intro={special ? <TodaysSpecialCard item={special} /> : null}
+      />
+      {/* Spells out the dietary tags the rows abbreviate. */}
+      <p className="px-gutter text-small text-secondary pt-2 pb-6 text-center">
+        V vegetarian · VG vegan · GF gluten-free · Ask us about allergies
+      </p>
     </main>
   )
 }

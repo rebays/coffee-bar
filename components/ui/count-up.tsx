@@ -4,9 +4,8 @@ import { useEffect, useRef } from 'react'
 import { useMotionValue, useSpring } from 'motion/react'
 
 /**
- * A digit that springs to a new value when it changes — nothing else in the
- * system animates a number outside the cart bar's own count-swap keyframe
- * (see docs/DESIGN-SYSTEM.md §6). Adapted from React Bits' CountUp, trimmed
+ * A digit that springs to a new value when it changes — the only number in
+ * the system that animates (see docs/DESIGN-SYSTEM.md §6). Adapted from React Bits' CountUp, trimmed
  * to fit that rule instead of fighting it:
  *
  * - No scroll trigger. Upstream fires on `useInView`, which is exactly the

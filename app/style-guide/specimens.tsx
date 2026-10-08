@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import type { ButtonSize, ButtonVariant } from '@/components/ui/button'
 import { Chip } from '@/components/ui/chip'
-import { MenuRowSkeleton, Skeleton } from '@/components/ui/skeleton'
+import { MenuItemCardSkeleton, Skeleton } from '@/components/ui/skeleton'
 import { Stepper } from '@/components/ui/stepper'
 import { Tag } from '@/components/ui/tag'
 import { MenuList } from '@/components/menu/menu-list'
@@ -116,12 +116,12 @@ export function Specimens() {
           </div>
         </Row>
         <div className="mt-2">
-          <MenuRowSkeleton />
-          <MenuRowSkeleton />
+          <MenuItemCardSkeleton />
+          <MenuItemCardSkeleton />
         </div>
       </Section>
 
-      <Section title="Menu row">
+      <Section title="Menu item cards">
         <Row label="full width — includes the sold-out item and both origin roasts">
           <div className="border-hairline w-full rounded-tile border">
             <MenuList items={MENU} />
@@ -145,7 +145,7 @@ export function Specimens() {
           <p className="text-body">Body, the default sixteen over twenty-four.</p>
           <p className="text-small">Small, fourteen over twenty.</p>
           <p className="tasting-note">Blackcurrant, brown sugar, clean finish</p>
-          <p className="text-spec wdth-condensed text-secondary">
+          <p className="text-spec text-secondary">
             2 shots · 180ml · whole milk
           </p>
         </div>
@@ -166,7 +166,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Row({ label: name, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-spec wdth-condensed text-tertiary">{name}</p>
+      <p className="text-spec text-tertiary">{name}</p>
       <div className="flex flex-wrap items-center gap-2">{children}</div>
     </div>
   )

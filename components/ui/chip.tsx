@@ -33,9 +33,9 @@ export function Chip({
     <button
       type={type}
       disabled={disabled}
-      // Selection is never colour alone: the chip fills *and* steps from 500 to
-      // 600. Weight is swapped, never transitioned — animating a variable axis
-      // re-rasterises every glyph each frame.
+      // Selection is never colour alone: the chip swaps the raised fill for
+      // the teal accent *and* steps from 500 to 600. Weight is swapped, never
+      // transitioned — animating it re-rasterises every glyph each frame.
       {...(selectionRole === 'radio'
         ? { role: 'radio', 'aria-checked': selected }
         : { 'aria-pressed': selected })}
@@ -46,20 +46,20 @@ export function Chip({
         'duration-(--dur-fast) ease-(--ease-standard)',
         selected
           ? 'border-transparent bg-accent font-semibold text-on-accent'
-          : 'border-hairline bg-transparent font-medium text-primary hover:bg-sunken',
+          : 'border-hairline bg-raised font-medium text-secondary hover:text-primary',
         'disabled:pointer-events-none disabled:border-transparent',
         'disabled:bg-disabled disabled:text-disabled-text',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ blockSize: '2.5rem' }}
+      style={{ blockSize: 'var(--tap-min)' }}
       {...props}
     >
       <span>{label}</span>
       {showDelta ? (
         <span
-          className="text-spec wdth-condensed"
+          className="text-spec"
           aria-label={`plus ${formatSBDSpoken(priceDelta)}`}
         >
           {formatSBD(priceDelta, { signed: true })}

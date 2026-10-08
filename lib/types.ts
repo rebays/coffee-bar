@@ -58,10 +58,16 @@ export type MenuItem = {
   optionGroupIds: string[]
   isNew?: boolean
   soldOut?: boolean
+  /**
+   * Featured in the "Today's special" card at the top of the menu. Staff
+   * set it from the inventory list; lib/menu-store.ts keeps it to at most
+   * one item at a time.
+   */
+  todaysSpecial?: boolean
   imageUrl?: string
 }
 
-/** Live shop state for the status strip. Computed in `shop-state.ts`. */
+/** Live shop state for the menu header's status line. Computed in `shop-state.ts`. */
 export type ShopState = {
   isOpen: boolean
   /** "4:30 PM" — meaningful while open. */

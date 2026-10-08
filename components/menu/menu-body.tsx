@@ -1,95 +1,143 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
 import type { Category, MenuItem } from '@/lib/types'
 
-import { CategorySidebar } from './category-sidebar'
+import { CategoryAccordion, type CategoryGroup } from './category-accordion'
 import { MenuSection } from './menu-section'
-import { STATUS_STRIP_HEIGHT_PX } from './status-strip'
+import { SearchBar } from './search-bar'
 
 /**
- * Two-column, Luckin-style menu body: a permanent left category sidebar next
- * to one continuous scroll of every category's section, in `categories`
- * order (the live taxonomy from lib/category-store.ts, passed down rather
- * than imported directly — the same pattern `items` already follows).
- * Grouping reads `item.category` directly — the same field the staff surface
- * and cart already trust — so a section can never show the wrong items.
+ * Pseudo-category for items staff flagged `isNew` — shown first, only while
+ * at least one exists. The items also stay in their real category; this is
+ * a shortcut, not a move. Prefixed so it can't collide with a slugified
+ * staff-created category id (lib/category-store.ts never emits `__`).
+ */
+const NEW_GROUP_ID = '__new'
+
+const SECTION_HASH_PREFIX = '#menu-section-'
+
+/**
+ * Search, then the category accordion.
  *
- * The sidebar's active highlight and its click-to-scroll are two directions
- * of the same state: scrolling updates `active` via IntersectionObserver,
- * clicking a category calls scrollIntoView and lets the observer catch up.
+ * - **Search** matches name, description, tasting note and tags across the
+ *   whole menu. While there's a query, the accordion (and whatever `intro`
+ *   is — today's special) hides and the matches show grouped by category;
+ *   clearing it brings everything back as it was.
+ * - **Accordion** — every category starts closed, so the menu lands as a
+ *   scannable list of tiles. Several can be open at once.
+ * - A `/menu#menu-section-<category>` link (the /categories page) opens that
+ *   category and scrolls to it, on first load and on later hash changes.
+ *
+ * Grouping reads `item.category` directly — the same field the staff
+ * surface and cart already trust — in the live taxonomy's order, and a
+ * category with no items gets no tile.
  */
 export function MenuBody({
   items,
   categories,
   orderingDisabled = false,
+  intro,
 }: {
   items: MenuItem[]
-  categories: ReadonlyArray<{ id: Category; label: string }>
+  categories: ReadonlyArray<{ id: Category; label: string; imageUrl?: string; imagePosition?: string }>
   orderingDisabled?: boolean
+  /** Shown between the search bar and the categories, hidden while searching. */
+  intro?: ReactNode
 }) {
-  const sectionRefs = useRef(new Map<Category, HTMLElement>())
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState<ReadonlySet<Category>>(() => new Set())
 
-  const groups = categories
-    .map((category) => ({
+  const newItems = items.filter((item) => item.isNew)
+  const groups: CategoryGroup[] = [
+    ...(newItems.length > 0 ? [{ category: NEW_GROUP_ID, label: 'New', items: newItems }] : []),
+    ...categories.map((category) => ({
       category: category.id,
       label: category.label,
+      imageUrl: category.imageUrl,
+      imagePosition: category.imagePosition,
       items: items.filter((item) => item.category === category.id),
-    }))
-    .filter((group) => group.items.length > 0)
-  const sidebarCategories = groups.map((group) => ({ id: group.category, label: group.label }))
+    })),
+  ].filter((group) => group.items.length > 0)
 
-  // Falls back to categories[0] only if every category were somehow empty —
-  // groups[0] is the real first non-empty one, so an empty category ahead
-  // of it in taxonomy order never becomes the stuck "active" state.
-  const [active, setActive] = useState<Category>(groups[0]?.category ?? categories[0]?.id ?? '')
+  const trimmed = query.trim()
+  const normalized = trimmed.toLowerCase()
+  const searching = normalized.length > 0
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue
-          const category = (entry.target as HTMLElement).dataset.category as Category
-          setActive(category)
-        }
-      },
-      // A section counts as "current" once it crosses just below the sticky
-      // status strip, while it's still in the top 30% of the viewport —
-      // keeps a short section from claiming "active" only while scrolled
-      // deep past it.
-      { rootMargin: `-${STATUS_STRIP_HEIGHT_PX}px 0px -70% 0px`, threshold: 0 },
+  function matches(item: MenuItem) {
+    return [item.name, item.description, item.tastingNote ?? '', ...item.tags].some((field) =>
+      field.toLowerCase().includes(normalized),
     )
-
-    for (const el of sectionRefs.current.values()) observer.observe(el)
-    return () => observer.disconnect()
-  }, [items])
-
-  function handleSelect(category: Category) {
-    const target = sectionRefs.current.get(category)
-    if (!target) return
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
   }
 
+  const results = searching
+    ? groups
+        // The New shortcut would only repeat matches already shown under
+        // their real category.
+        .filter((group) => group.category !== NEW_GROUP_ID)
+        .map((group) => ({ ...group, items: group.items.filter(matches) }))
+        .filter((group) => group.items.length > 0)
+    : []
+
+  function toggle(category: Category) {
+    setOpen((prev) => {
+      const next = new Set(prev)
+      if (next.has(category)) next.delete(category)
+      else next.add(category)
+      return next
+    })
+  }
+
+  useEffect(() => {
+    function openFromHash() {
+      if (!window.location.hash.startsWith(SECTION_HASH_PREFIX)) return
+      const category = decodeURIComponent(window.location.hash.slice(SECTION_HASH_PREFIX.length))
+      const heading = document.getElementById(`menu-section-${category}`)
+      if (!heading) return
+      setQuery('')
+      setOpen((prev) => (prev.has(category) ? prev : new Set(prev).add(category)))
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      heading.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+    }
+
+    // Deferred a frame so the first paint has laid out every tile before
+    // scrolling — and so the state update happens outside the effect body.
+    const frame = requestAnimationFrame(openFromHash)
+    window.addEventListener('hashchange', openFromHash)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('hashchange', openFromHash)
+    }
+  }, [])
+
   return (
-    <div className="flex items-start">
-      <CategorySidebar categories={sidebarCategories} active={active} onSelect={handleSelect} />
-      <div className="min-w-0 flex-1">
-        {groups.map((group) => (
-          <MenuSection
-            key={group.category}
-            category={group.category}
-            label={group.label}
-            items={group.items}
-            orderingDisabled={orderingDisabled}
-            registerRef={(el) => {
-              if (el) sectionRefs.current.set(group.category, el)
-              else sectionRefs.current.delete(group.category)
-            }}
-          />
-        ))}
-      </div>
+    <div className="flex flex-col gap-4 pb-4">
+      <SearchBar value={query} onChange={setQuery} />
+
+      {searching ? (
+        <div className="flex flex-col gap-7">
+          <p className="px-gutter text-small text-secondary" aria-live="polite">
+            {results.length === 0
+              ? `No items match “${trimmed}”. Try a shorter word, or clear the search to browse.`
+              : `Results for “${trimmed}”`}
+          </p>
+          {results.map((group) => (
+            <MenuSection
+              key={group.category}
+              category={group.category}
+              label={group.label}
+              items={group.items}
+              orderingDisabled={orderingDisabled}
+            />
+          ))}
+        </div>
+      ) : (
+        <>
+          {intro}
+          <CategoryAccordion groups={groups} open={open} onToggle={toggle} orderingDisabled={orderingDisabled} />
+        </>
+      )}
     </div>
   )
 }

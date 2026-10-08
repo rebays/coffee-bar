@@ -9,13 +9,28 @@
  * `globalThis`-anchored for the same cross-layer-module reason as every
  * other runtime store here (lib/orders/store.ts, lib/menu-store.ts, …).
  */
-export type CategoryRecord = { id: string; label: string }
+/**
+ * `imageUrl` is the optional photo on the category's tile (menu and
+ * /categories). A tile without one shows its first available item's photo,
+ * else its illustration. `imagePosition` (a CSS `object-position`) says which
+ * part of that photo to keep when the card's photo area — which changes
+ * shape with screen width — crops it; centred when omitted.
+ */
+export type CategoryRecord = { id: string; label: string; imageUrl?: string; imagePosition?: string }
 
 /** The menu's original taxonomy — order here is the menu's own order, unchanged from before this store existed. */
 const DEFAULT_CATEGORIES: CategoryRecord[] = [
   { id: 'best-sellers', label: 'Best Sellers' },
   { id: 'coffee', label: 'Coffee' },
-  { id: 'tea-refreshers', label: 'Tea & Refreshers' },
+  // The only category with its own photo; the rest use their first item's.
+  {
+    id: 'tea-refreshers',
+    label: 'Tea & Refreshers',
+    imageUrl: '/menu/category-tea-refreshers.jpg',
+    // The mug sits at the photo's bottom-right; anchoring there means a
+    // narrow card trims the hibiscus flower on the left, never the mug.
+    imagePosition: 'right bottom',
+  },
   { id: 'mains', label: 'Mains' },
   { id: 'sandwich', label: 'Sandwich' },
   { id: 'salad', label: 'Salad' },

@@ -87,6 +87,34 @@ export function setSoldOut(slug: string, soldOut: boolean): MenuItem | undefined
   return updated
 }
 
+/**
+ * Marks `slug` as today's special (clearing it from whichever item held it
+ * before — there is only ever one), or un-marks it. Returns the updated
+ * item, or undefined if the slug isn't on the menu.
+ */
+export function setTodaysSpecial(slug: string, todaysSpecial: boolean): MenuItem | undefined {
+  const item = state.items.get(slug)
+  if (!item) return undefined
+  if (todaysSpecial) {
+    for (const [otherSlug, other] of state.items) {
+      if (otherSlug !== slug && other.todaysSpecial) {
+        state.items.set(otherSlug, { ...other, todaysSpecial: false })
+      }
+    }
+  }
+  const updated: MenuItem = { ...item, todaysSpecial }
+  state.items.set(slug, updated)
+  return updated
+}
+
+/** The item staff featured today, unless it has since sold out. */
+export function getTodaysSpecial(): MenuItem | undefined {
+  for (const item of state.items.values()) {
+    if (item.todaysSpecial && !item.soldOut) return item
+  }
+  return undefined
+}
+
 function slugify(name: string): string {
   const base = name
     .toLowerCase()
@@ -114,7 +142,7 @@ export function createMenuItem(fields: MenuItemFields): MenuItem {
 
 /**
  * Replaces every editable field at once (the edit form always resubmits
- * everything it shows) except `slug` and `soldOut`, which this never
+ * everything it shows) except `slug`, `soldOut` and `todaysSpecial`, which this never
  * touches. If `category` changed, repositions the item to the end of its
  * new category's block.
  */
@@ -122,7 +150,12 @@ export function updateMenuItem(slug: string, fields: MenuItemFields): MenuItem |
   const item = state.items.get(slug)
   if (!item) return undefined
 
-  const updated: MenuItem = { ...fields, slug: item.slug, soldOut: item.soldOut }
+  const updated: MenuItem = {
+    ...fields,
+    slug: item.slug,
+    soldOut: item.soldOut,
+    todaysSpecial: item.todaysSpecial,
+  }
   state.items.set(slug, updated)
 
   if (updated.category !== item.category) {

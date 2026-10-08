@@ -136,7 +136,7 @@ export function KitchenDashboard({ initialOrders }: { initialOrders: StaffOrderV
           <section key={stage} className="border-hairline bg-raised rounded-tile flex flex-col gap-3 border p-4">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-section">{STAGE_COPY[stage].heading}</h2>
-              <span className="bg-tag text-secondary text-spec wdth-condensed inline-flex min-w-[1.75rem] items-center justify-center rounded-full px-2 py-1">
+              <span className="bg-tag text-secondary text-spec inline-flex min-w-[1.75rem] items-center justify-center rounded-full px-2 py-1">
                 {stageOrders.length}
               </span>
             </div>

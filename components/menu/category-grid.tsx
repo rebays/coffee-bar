@@ -5,11 +5,14 @@ import Link from 'next/link'
 
 import type { Category } from '@/lib/types'
 
+import { ItemThumbnail } from '@/components/ui/item-thumbnail'
+
 import { CategoryIcon } from './category-icon'
 
 export type CategorySummary = {
   id: Category
   label: string
+  imageUrl?: string
   itemCount: number
 }
 
@@ -38,7 +41,7 @@ export function CategoryGrid({ categories }: { categories: CategorySummary[] }) 
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search categories"
-          className="rounded-input bg-sunken text-body w-full px-4 py-3"
+          className="surface-card text-body text-primary w-full px-4 py-3"
           style={{ blockSize: 'var(--control-md)' }}
         />
       </label>
@@ -48,27 +51,47 @@ export function CategoryGrid({ categories }: { categories: CategorySummary[] }) 
           No categories match “{query.trim()}”.
         </p>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <ul className="flex flex-col gap-3">
           {filtered.map((category) => (
             <li key={category.id}>
               <Link
                 href={`/menu#menu-section-${category.id}`}
-                className={[
-                  'tap-expand border-hairline rounded-tile flex flex-col items-center gap-2 border p-4 text-center',
-                  'transition-colors duration-(--dur-fast) ease-(--ease-standard) hover:bg-sunken',
-                ].join(' ')}
-                style={{ minBlockSize: 'var(--tap-min)' }}
+                className="tap-expand surface-card flex w-full items-center gap-3.5 py-3 ps-3.5 pe-3"
+                style={{ minBlockSize: '5.75rem' }}
               >
-                <CategoryIcon category={category.id} />
-                <span className="text-item">{category.label}</span>
-                <span className="text-spec wdth-condensed text-tertiary">
-                  {category.itemCount} {category.itemCount === 1 ? 'item' : 'items'}
+                <span
+                  className="bg-accent-subtle text-brand rounded-control flex shrink-0 items-center justify-center"
+                  style={{ inlineSize: '2.5rem', blockSize: '2.5rem' }}
+                >
+                  <CategoryIcon category={category.id} />
                 </span>
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="text-item font-semibold">{category.label}</span>
+                  <span className="text-small text-secondary">
+                    {category.itemCount} {category.itemCount === 1 ? 'item' : 'items'}
+                  </span>
+                </span>
+                {category.imageUrl ? <ItemThumbnail src={category.imageUrl} size={64} /> : null}
+                <ChevronRight />
               </Link>
             </li>
           ))}
         </ul>
       )}
     </div>
+  )
+}
+
+function ChevronRight() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" fill="none" className="text-tertiary shrink-0">
+      <path
+        d="M6 3l5 5-5 5"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

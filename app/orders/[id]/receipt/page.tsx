@@ -39,7 +39,7 @@ export default async function ReceiptPage(props: PageProps<'/orders/[id]/receipt
       </div>
 
       <div className="flex flex-col items-center gap-2 text-center">
-        <p className="text-spec wdth-condensed text-secondary">Pickup code</p>
+        <p className="text-spec text-secondary">Pickup code</p>
         <p className="text-metric" aria-label={`Pickup code ${view.pickupCode.split('').join(' ')}`}>
           {view.pickupCode}
         </p>

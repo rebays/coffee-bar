@@ -40,7 +40,7 @@ export function Stepper({
   const controlSize = CONTROL[size]
 
   const segment = [
-    'inline-flex items-center justify-center rounded-full text-primary',
+    'inline-flex items-center justify-center rounded-full text-accent',
     'transition-colors duration-(--dur-fast) ease-(--ease-standard)',
     'hover:bg-sunken disabled:pointer-events-none disabled:text-disabled-text',
   ].join(' ')
@@ -52,7 +52,7 @@ export function Stepper({
 
   return (
     <div
-      className="inline-flex items-center rounded-full border border-hairline"
+      className="border-line-strong inline-flex items-center rounded-full border"
       style={{ blockSize: controlSize }}
     >
       <button

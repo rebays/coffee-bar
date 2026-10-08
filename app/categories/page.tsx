@@ -18,6 +18,7 @@ export default async function CategoriesPage() {
   const categories: CategorySummary[] = getCategories().map((category) => ({
     id: category.id,
     label: category.label,
+    imageUrl: category.imageUrl,
     itemCount: items.filter((item) => item.category === category.id).length,
   })).filter((category) => category.itemCount > 0)
 

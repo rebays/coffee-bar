@@ -76,40 +76,42 @@ one origin item with a roast level, and `formatSBD()` has unit tests covering ro
 
 `Button`, `Chip`, `Stepper`, `Tag`, `Skeleton`. Build to `docs/DESIGN-SYSTEM.md` §7.
 
-Consume `var(--accent)` and friends, never a hardcoded hex. Disabled states use
-`slate-100` fill and `slate-400` text, never opacity. All pill radius.
+Consume the semantic tokens (`bg-accent`, `text-on-accent`, `text-brand` and
+friends), never a hardcoded hex. Disabled states use the `disabled` fill and text
+tokens, never opacity. All pill radius.
 
 **Done when:** a scratch `/style-guide` route shows every variant and size in both
 themes, and every one is reachable and visibly focused by keyboard.
 
 ---
 
-## 4. Menu row and list
+## 4. Menu item cards and list
 
-`components/menu/menu-row.tsx` plus the list. The highest-traffic component in the
-product — get it right before anything is layered on.
+`components/menu/menu-item-card.tsx` plus the list. The highest-traffic component in
+the product — get it right before anything is layered on.
 
-- Fixed 72px price rail so prices align down the column.
-- Name at weight 600, description at 400, spec line at 12px / `font-stretch: 90%`.
+- 72px rounded thumbnail (photo, else the category illustration), name in Urbanist,
+  tags, a two-line description, then the price and the teal **Add +** pill.
 - Origin items lead with the roast segment bar; others have no marker.
-- Sold out: visible, price struck through, `[+]` disabled, `Sold out` tag. Never hidden.
-- Descriptions clamp to two lines.
+- Sold out: visible, price struck through, the pill swapped for a disabled
+  `Sold out` label. Never hidden.
 
-**Done when:** prices align perfectly down a list of wildly varying name lengths, and
-the row holds at 320px width.
+**Done when:** the card holds at 320px width with long names and descriptions, in
+both themes.
 
 ---
 
 ## 5. Menu screen
 
-Status strip → hero → category rail → list. Server Component; the rail filters
-client-side.
+Header (live status) → hero → search → category cards. Server Component; search and
+the accordion are client-side.
 
-The hero shows live shop state, not a photo: today's filter origin, its tasting note,
-roast, and the current wait. Stub behind `lib/shop-state.ts` returning static data.
+The header shows live shop state — open/closed, the wait, closing time, the table —
+behind `lib/shop-state.ts`. The hero is a photo card with the headline. Each category
+card expands inline to its items.
 
-**Done when:** the full screen renders at 320px, 390px and 768px, the rail scrolls
-horizontally without a visible scrollbar, and nothing shifts on font load.
+**Done when:** the full screen renders at 320px, 390px and 768px in both themes, and
+nothing shifts on font or image load.
 
 ---
 
@@ -133,12 +135,12 @@ the menu at the previous scroll position.
 `lib/cart-store.ts` — client-side, integer minor units. A line is an item slug plus
 resolved option choices plus quantity; identical configurations merge into one line.
 
-Then the cart bar and `app/cart/page.tsx`.
+Then the header cart button and `app/cart/page.tsx`.
 
-- Cart bar is black, renders only when non-empty, is one tap target.
-- **The one orchestrated moment:** `[+]` fills cyan and holds 120ms, the count swaps
-  upward over 180ms, the bar rises from below on the first item. Use `.animate-count-swap`
-  and `.animate-bar-rise`. Nothing else in the app animates on its own.
+- The cart button sits in the header and carries an item-count badge that pops
+  (`animate-badge-pop`) when the count changes.
+- **Add +** confirms in place: the pill reads **Added ✓** for a moment. Nothing else
+  in the app animates on its own.
 - Empty cart: "Nothing in your order yet." + `Browse the menu`.
 
 **Done when:** the same drink with different milk produces two lines, twice with the

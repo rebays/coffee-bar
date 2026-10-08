@@ -17,7 +17,7 @@ export const SHOP_ID = 'honiara'
 export const START_MAKING_BEFORE_PAYMENT = false
 
 /**
- * Live shop state, read by the status strip and — the part that actually
+ * Live shop state, read by the menu header's status line and — the part that actually
  * matters — lib/actions/place-order.ts's server-side rejection of an order
  * placed while closed. `isOpen` here is the schedule in lib/shop-hours.ts,
  * unless staff have set a manual override (lib/shop-override-store.ts) to

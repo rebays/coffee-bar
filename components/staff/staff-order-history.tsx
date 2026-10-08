@@ -84,7 +84,7 @@ export function StaffOrderHistory({
               client-route it instead of letting the browser save the response. */}
           <a
             href={`/api/staff/orders/history/export?period=${period}`}
-            className="border-hairline rounded-full border px-4 py-2 text-body font-semibold"
+            className="border-hairline rounded-control border px-4 py-2 text-body font-semibold"
           >
             Export {period === 'all' ? 'all time' : currentPeriodLabel.toLowerCase()}
           </a>
@@ -118,7 +118,7 @@ export function StaffOrderHistory({
           <div className="border-hairline bg-raised rounded-tile overflow-x-auto border">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-hairline text-spec wdth-condensed text-secondary border-b">
+                <tr className="border-hairline text-spec text-secondary border-b">
                   <th className="p-3 font-medium">Code</th>
                   <th className="p-3 font-medium">Items</th>
                   <th className="p-3 text-right font-medium">Total</th>

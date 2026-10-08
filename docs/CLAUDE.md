@@ -37,17 +37,22 @@ pnpm typecheck    # tsc --noEmit
 
 ```
 app/
-  layout.tsx              root — font + theme setup
+  layout.tsx              root — fonts, theme setup, page texture, bottom nav
   globals.css             the entire token layer. Do not add tokens elsewhere.
-  page.tsx                menu
+  page.tsx                redirects to /menu, keeping the query (old table QRs)
+  menu/page.tsx           the menu: header, hero, search, category cards
   item/[slug]/page.tsx    item sheet (a real route, not a modal-only component)
   cart/page.tsx
   order/[id]/page.tsx     order status + pickup code
+  orders/page.tsx         this device's past orders
   staff/page.tsx          staff surface (auth required)
+  kitchen/page.tsx        kitchen display
 components/
-  ui/                     button, chip, stepper, tag, sheet, skeleton
-  menu/                   menu-row, category-sidebar, hero, status-strip
-  cart/                   cart-bar, cart-list
+  header.tsx, bottom-nav.tsx, theme-toggle.tsx
+  ui/                     button, chip, stepper, tag, skeleton, modal, toast host
+  menu/                   menu-hero, search-bar, menu-body, category-accordion,
+                          category-illustration, menu-item-card, menu-section
+  cart/                   cart-button, add-to-cart-button
 lib/
   types.ts
   money.ts                integer minor units, SBD
@@ -66,72 +71,75 @@ There is no `tailwind.config.js` and one must not be created. All tokens live in
 `app/globals.css` under `@theme` and `@theme inline`. Adding a JS config silently
 splits the token source in two.
 
-### 2. Never use `font-variation-settings`
-
-Bricolage Grotesque's axes are driven through standard CSS properties:
-
-| Axis | Property |
-|---|---|
-| `wght` 200–800 | `font-weight` |
-| `wdth` 75–100 | `font-stretch`, as a **percentage** |
-| `opsz` 12–96 | `font-optical-sizing: auto` |
-
-`font-variation-settings` takes a lower-level path that suppresses automatic optical
-sizing in several engines. Using it anywhere in the tree silently kills the opsz axis,
-which is the main reason this face was chosen.
-
-### 3. Font setup
+### 2. Two faces, and where each goes
 
 ```tsx
 // app/layout.tsx
-import { Bricolage_Grotesque } from 'next/font/google'
-
-const bricolage = Bricolage_Grotesque({
-  subsets: ['latin'],
-  axes: ['opsz', 'wdth'],   // wght is the default axis — listing it is an error
-  variable: '--font-bricolage',
-})
+const urbanist = Urbanist({ subsets: ['latin'], style: ['normal'], variable: '--font-urbanist' })
+const robotoFlex = Roboto_Flex({ subsets: ['latin'], axes: ['opsz'], variable: '--font-roboto-flex' })
 ```
 
-Bricolage ships **upright only**. There is no italic. Do not write `italic` or
-`font-style: italic` anywhere. Tasting notes use the `note` role — weight 350, +0.01em
-tracking — which is the replacement treatment.
+- **Urbanist** — titles, section headings, item names, metrics. The `text-title`,
+  `text-section`, `text-display`, `text-item` and `text-metric` roles apply it.
+- **Roboto Flex** — everything else; the body default. Its optical size runs on
+  `font-optical-sizing: auto`. Never use `font-variation-settings` anywhere — it
+  silently disables that.
 
-### 4. Width condenses, never expands
+No italic, no emoji. Icons are Lucide (`lucide-react`) line icons, `aria-hidden`,
+labelled by text or `aria-label`.
 
-The `wdth` axis caps at 100. Item names sit at 100%; only the 12px spec line drops to
-90%. Never widen type to emphasise it.
+### 3. Teal has two jobs, and they use different tokens
 
-### 5. Cyan has two stops for one role
+White on `#0D9488` is 3.7:1 — under the floor. So:
 
-Bright cyan on white is ~1.9:1. Light mode uses `cyan-600`, dark mode uses `cyan-300`.
-Crossing them is the one way this palette breaks:
+- **Text-bearing fills** (buttons, the **Add +** pill, badges, the active order step)
+  use `bg-accent` + `text-on-accent` — `#0F766E` with white in light, `#2DD4BF` with
+  near-black `#042F2E` in dark.
+- **Marks** (icons, the brand mark, the open dot, radio rings, selected borders, done
+  steps) use `text-brand` / `bg-brand` / `border-brand`.
+- Small text that must read as "active" (the current nav tab) uses `text-accent`,
+  not `text-brand`.
 
-- Never `cyan-200`–`cyan-400` on white
-- Never `cyan-600`–`cyan-900` on black
+Never hardcode a hex in a component; never reference the raw palette directly.
 
-Always consume `var(--accent)` / `--color-accent`, which is re-pointed per theme.
-Never hardcode a cyan hex in a component.
+### 4. Light first, dark on request
+
+The customer app is light by default (`data-theme="light"` is server-rendered). The
+header toggle (`components/theme-toggle.tsx`) switches to dark and saves it; the
+inline script in `app/layout.tsx` applies a saved "dark" before first paint. The
+toggle's icon shows the current mode. Check every new surface in both. Staff and
+kitchen pin `data-theme="dark"` on their own root.
+
+### 5. Cards, shadows, texture and illustrations
+
+Cards are `surface-card` (warm-white fill, 20px radius, a soft neutral shadow in
+light, a faint 1px border in dark). Shadows are never teal. The page grain
+(`.page-texture`) stays faint enough never to affect text contrast. No gradient
+fills on buttons or cards.
+
+Illustrations (`components/menu/category-illustration.tsx`) stand in for missing
+photos and use only the `--illo-*` palette. Those colours are for drawings — never
+for UI state, text or controls.
 
 ### 6. Colour has fixed meanings
 
-- **Black** is structure — text, status strip, cart bar. Never a call to action.
-- **Cyan** is action and "happening right now". Nothing decorative is cyan.
-- **White** is the page.
-
-If a new element seems to need a fourth colour, that is a design question — stop and
-ask rather than inventing a token.
+- **Teal** is action, selection, icons and badges.
+- **Mint** (`--color-highlight`) is today's special and nothing else.
+- **Red** is errors and destructive actions. The open-store state uses teal,
+  always paired with the words "Open now".
+- Everything else is neutral surface and text. If a new element seems to need
+  another colour, that is a design question — stop and ask.
 
 ### 7. Money is integer minor units, in SBD
 
 Store and pass prices as integers. Format only at the render boundary via
 `lib/money.ts`. No floats in any total, delta, or tax calculation.
 
-### 8. Never animate type axes
+### 8. Never animate type
 
-Do not transition or animate `font-stretch` or `font-weight`. It forces glyph
-re-rasterisation every frame and janks on mid-range phones. Animate `transform` and
-`opacity` only.
+Do not transition or animate `font-weight` or `font-stretch` (state changes swap them
+instantly). It forces glyph re-rasterisation every frame and janks on mid-range
+phones. Animate `transform` and `opacity` only.
 
 ---
 
@@ -171,8 +179,8 @@ Also: totals are locked at `placed` and never recomputed from current menu price
 - Every interactive element gets a visible `:focus-visible` ring. Never
   `outline: none` without a replacement.
 - Minimum touch target 44×44 (`--tap-min`); kiosk mode 56×56 via `data-density="kiosk"`.
-- State is never colour alone — selected chips fill *and* gain weight, sold-out strikes
-  through *and* mutes, the live step carries a text label.
+- State is never colour alone — selected options fill the radio *and* gain weight,
+  sold-out strikes through *and* mutes, the live step carries a text label.
 - All numerals use `font-variant-numeric: tabular-nums` (set globally in `globals.css`).
 - Copy: sentence case, active voice, name the outcome. The phase 1 button is **Place
   order**, not "Pay" or "Checkout" — nothing is being paid — and it produces a toast

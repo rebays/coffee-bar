@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { __resetOrderStoreForTests, createOrder } from './store.ts'
 import { STAFF_STATE_LABEL, displayStepIndex, staffStateTagVariant, toStatusView } from './status-view.ts'
 import type { OrderActor, OrderLine, OrderState } from './types.ts'
+import { __resetMenuStoreForTests, getMenuItem, updateMenuItem } from '../menu-store.ts'
 
 const ALL_STATES: OrderState[] = [
   'placed',
@@ -21,8 +22,18 @@ const LINES: OrderLine[] = [
   { slug: 'flat-white', name: 'Flat white', customizations: [], quantity: 1, unitPrice: 3800, lineTotal: 3800 },
 ]
 
+/** The seed menu ships without photos, so the photo test gives one item a photo itself. */
+const PHOTO = '/uploads/menu/test-flat-white.jpg'
+
+function giveFlatWhiteAPhoto() {
+  const item = getMenuItem('flat-white')
+  assert.ok(item)
+  updateMenuItem('flat-white', { ...item, imageUrl: PHOTO })
+}
+
 test.beforeEach(() => {
   __resetOrderStoreForTests()
+  __resetMenuStoreForTests()
 })
 
 test('the status view never carries the device token', () => {
@@ -45,13 +56,15 @@ test('the status view carries what the customer needs to see', () => {
     CUSTOMER,
   )
 
+  giveFlatWhiteAPhoto()
   const view = toStatusView(order)
 
   assert.equal(view.id, order.id)
   assert.equal(view.pickupCode, order.pickupCode)
   assert.equal(view.total, 3800)
   assert.equal(view.state, 'placed')
-  assert.deepEqual(view.lines, order.lines)
+  // Views attach the item's current catalog photo; the stored order never carries one.
+  assert.deepEqual(view.lines, [{ ...order.lines[0], imageUrl: PHOTO }])
 })
 
 test('placed, awaiting_payment and paid all display as the same first step', () => {

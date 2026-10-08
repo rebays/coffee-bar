@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server'
 
 import { parseMenuItemFields } from '@/lib/menu-item-input'
-import { deleteMenuItem, setSoldOut, updateMenuItem } from '@/lib/menu-store'
+import { deleteMenuItem, setSoldOut, setTodaysSpecial, updateMenuItem } from '@/lib/menu-store'
 import { getStaffSession } from '@/lib/staff-auth'
 
-/** Toggles a menu item's sold-out flag — the fast, day-to-day control from step 10. */
+/**
+ * The fast, day-to-day toggles from the inventory list: `{ soldOut }` (step
+ * 10) or `{ todaysSpecial }` — one per request. Setting a new special moves
+ * it off whichever item held it, so the client should treat every other
+ * item's `todaysSpecial` as cleared when this one comes back `true`.
+ */
 export async function PATCH(request: Request, ctx: RouteContext<'/api/staff/menu/[slug]'>) {
   const session = await getStaffSession()
   if (!session) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -16,13 +21,17 @@ export async function PATCH(request: Request, ctx: RouteContext<'/api/staff/menu
     return NextResponse.json({ error: 'invalid_body' }, { status: 400 })
   }
 
-  const soldOut = body && typeof body === 'object' ? (body as Record<string, unknown>).soldOut : undefined
-  if (typeof soldOut !== 'boolean') {
-    return NextResponse.json({ error: 'invalid_sold_out' }, { status: 400 })
-  }
-
+  const record = body && typeof body === 'object' ? (body as Record<string, unknown>) : {}
   const { slug } = await ctx.params
-  const updated = setSoldOut(slug, soldOut)
+
+  let updated
+  if (typeof record.soldOut === 'boolean') {
+    updated = setSoldOut(slug, record.soldOut)
+  } else if (typeof record.todaysSpecial === 'boolean') {
+    updated = setTodaysSpecial(slug, record.todaysSpecial)
+  } else {
+    return NextResponse.json({ error: 'invalid_toggle' }, { status: 400 })
+  }
   if (!updated) return NextResponse.json({ error: 'not_found' }, { status: 404 })
 
   return NextResponse.json(updated, { headers: { 'Cache-Control': 'no-store' } })

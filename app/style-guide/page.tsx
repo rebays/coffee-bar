@@ -22,7 +22,7 @@ export default function StyleGuidePage() {
 function Panel({ theme }: { theme: 'light' | 'dark' }) {
   return (
     <div data-theme={theme} className="bg-ground text-primary p-gutter py-10">
-      <p className="text-spec wdth-condensed text-tertiary mb-8">{theme}</p>
+      <p className="text-spec text-tertiary mb-8">{theme}</p>
       <Specimens />
     </div>
   )

@@ -2,83 +2,71 @@
 
 /* ==========================================================================
    Coffee Bar Menu — token layer
-   Design system: "Steel & Steam" v0.4
+   Brand: light, calm and premium. A soft greige page with a faint paper
+   grain, warm-white cards, charcoal text, and a refined teal-green for
+   action, selection and the brand mark. Category cards carry drawn
+   illustrations until real photos exist. A dark theme mirrors the
+   structure; staff and kitchen are dark.
    Tailwind CSS v4 · Next.js App Router
 
-   Three colours, three jobs, no overlap:
-     black — structure (chrome, text, cart bar, status strip)
-     cyan  — action, and only action (buttons, selected state, live, focus)
-     white — the page
-
-   Type: Bricolage Grotesque Variable — opsz 12–96, wdth 75–100, wght 200–800.
-   Axes are driven through standard CSS properties (font-weight, font-stretch,
-   font-optical-sizing), NOT font-variation-settings — see section 3.
+   Colour, one job each:
+     teal     #0D9488 (light) / #2DD4BF (dark) — the brand: icons, rings,
+              selected borders, focus, the open dot. As a fill under text it
+              steps to #0F766E with white in light (5.5:1) and carries
+              near-black text in dark — white on #0D9488 is only 3.7:1.
+     greige   #EEEBE5 page, #FBFAF8 cards — light surfaces
+     charcoal #1F2421 text, #5E625F secondary
+     mint     today's special, nothing else
+     illo-*   illustration-only colours (components/menu/category-
+              illustration.tsx). Never used for UI state.
+   Type: Urbanist for headings and item names (`font-display`), Roboto Flex
+   for everything else. Optical size via font-optical-sizing, never
+   font-variation-settings.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
    1. Raw palette — fixed values, never referenced directly in components.
-   Components consume the semantic layer in section 2.
    -------------------------------------------------------------------------- */
 @theme {
-  --color-slate-0: #ffffff;
-  --color-slate-50: #f6f6f6;
-  --color-slate-100: #ededed;
-  --color-slate-200: #dcdcdc;
-  --color-slate-300: #bfbfbf;
-  --color-slate-400: #9a9a9a;
-  --color-slate-500: #767676;
-  --color-slate-600: #5a5a5a;
-  --color-slate-700: #404040;
-  --color-slate-800: #262626;
-  --color-slate-900: #141414;
-  --color-slate-950: #0a0a0a;
-  --color-black: #000000;
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-200: #99f6e4;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf; /* brand, dark */
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488; /* brand, light */
+  --color-teal-700: #0f766e; /* fill under white text, light */
+  --color-teal-800: #115e59;
+  --color-teal-900: #134e4a;
+  --color-teal-950: #042f2e;
 
-  /* Cyan exists at two stops for the same role. Bright cyan on white is ~1.9:1,
-     so light mode uses 600 and dark mode uses 300. Never cross them:
-     200-400 on white and 600-900 on black both fall below 3:1. */
-  --color-cyan-50: #e4f8fc;
-  --color-cyan-100: #bfeff8;
-  --color-cyan-200: #8ae1f2;
-  --color-cyan-300: #45cfe9;
-  --color-cyan-400: #12b5d4;
-  --color-cyan-500: #0093b0;
-  --color-cyan-600: #006c84;
-  --color-cyan-700: #045d72;
-  --color-cyan-900: #0a3a46;
+  --color-greige-50: #fbfaf8;
+  --color-greige-100: #f6f4f0;
+  --color-greige-200: #eeebe5; /* the page */
+  --color-greige-300: #e2ded7;
+  --color-greige-400: #d6d1c8;
+  --color-charcoal-500: #626663;
+  --color-charcoal-600: #5e625f;
+  --color-charcoal-900: #1f2421;
 
-  --color-signal-50: #fcebe9;
-  --color-signal-500: #c7261a;
-  --color-signal-700: #a81f14;
+  --color-zinc-700: #3f3f46; /* strong line, dark */
 
-  /* Green — a deliberate, narrow fourth colour, added by explicit product
-     decision for exactly one job: the store open/closed status badge on the
-     Home screen. Not a general-purpose colour; nothing else in the system
-     reaches for it. Same two-stop shape as cyan (a light-mode stop
-     contrast-checked on white, a dark-mode stop contrast-checked on black),
-     computed the same way: green-600 is 5.4:1 on white, green-300 is
-     12:1 on black. See docs/DESIGN-SYSTEM.md §2 for the full rationale. */
-  --color-green-50: #e6f7ec;
-  --color-green-100: #c3efd2;
-  --color-green-300: #4ade80;
-  --color-green-600: #0f7a3c;
-  --color-green-800: #166534;
-  --color-green-900: #0f3d1f;
+  --color-red-50: #fef2f2;
+  --color-red-300: #fca5a5;
+  --color-red-700: #b91c1c;
+  --color-red-950: #450a0a;
 
   /* Type ---------------------------------------------------------------- */
-  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-roboto-flex), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-urbanist), var(--font-roboto-flex), ui-sans-serif, system-ui, sans-serif;
 
-  /* Tracking runs slightly tighter than a neutral grotesque would want —
-     Bricolage sets a little loose by default at display sizes. */
   --text-spec: 0.75rem;
   --text-spec--line-height: 1rem;
-  --text-spec--letter-spacing: 0.02em;
   --text-spec--font-weight: 500;
 
   --text-note: 0.9375rem;
   --text-note--line-height: 1.375rem;
-  --text-note--letter-spacing: 0.01em;
-  --text-note--font-weight: 350;
+  --text-note--font-weight: 400;
 
   --text-small: 0.875rem;
   --text-small--line-height: 1.25rem;
@@ -89,53 +77,45 @@
   --text-body-lg: 1.125rem;
   --text-body-lg--line-height: 1.75rem;
 
-  /* Price rail figures — tabular-nums is inherited from body, so this role
-     only needs to set size and weight. */
-  --text-price: 1.125rem;
+  --text-price: 1.0625rem;
   --text-price--line-height: 1.5rem;
-  --text-price--font-weight: 600;
+  --text-price--font-weight: 700;
 
-  --text-item: 1.25rem;
-  --text-item--line-height: 1.625rem;
-  --text-item--letter-spacing: -0.01em;
-  --text-item--font-weight: 600;
+  /* Urbanist from here down (section 4 attaches the family). */
+  --text-item: 1.125rem;
+  --text-item--line-height: 1.5rem;
+  --text-item--font-weight: 700;
 
-  --text-section: 1.5rem;
+  --text-section: 1.375rem;
   --text-section--line-height: 1.75rem;
-  --text-section--letter-spacing: -0.015em;
-  --text-section--font-weight: 600;
+  --text-section--letter-spacing: -0.01em;
+  --text-section--font-weight: 800;
 
-  --text-title: 2rem;
+  --text-title: 1.875rem;
   --text-title--line-height: 2.25rem;
   --text-title--letter-spacing: -0.02em;
-  --text-title--font-weight: 700;
+  --text-title--font-weight: 800;
 
-  --text-metric: 2.75rem;
-  --text-metric--line-height: 2.75rem;
-  --text-metric--letter-spacing: -0.02em;
-  --text-metric--font-weight: 700;
+  --text-metric: 2.5rem;
+  --text-metric--line-height: 2.5rem;
+  --text-metric--font-weight: 800;
 
-  --text-display: 3.5rem;
-  --text-display--line-height: 3.5rem;
-  --text-display--letter-spacing: -0.025em;
-  --text-display--font-weight: 700;
+  --text-display: 3rem;
+  --text-display--line-height: 3rem;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 800;
 
-  /* Geometry — encodes hierarchy: surfaces square, tiles crisp, text entry
-     soft, controls round. `--radius-input` is deliberately its own step
-     between tile and pill: an input isn't a pressable object (so not
-     radius-pill), but it also isn't a static card or image (so radius-tile's
-     3px reads as an oversight rather than a choice once you're typing into
-     it). See docs/DESIGN-SYSTEM.md §1. */
+  /* Geometry — generous rounding: controls 14, cards 20, sheets 28. */
   --radius-none: 0px;
-  --radius-tile: 3px;
-  --radius-input: 10px;
-  --radius-sheet: 16px;
+  --radius-control: 14px;
+  --radius-input: 14px;
+  --radius-tile: 20px;
+  --radius-sheet: 28px;
   --radius-pill: 999px;
 
-  /* Elevation — neutral, never cyan. A coloured glow would make cyan mean
-     "decoration" as well as "action". */
-  --shadow-raise: 0 1px 2px rgb(0 0 0 / 0.08);
-  --shadow-float: 0 -2px 16px rgb(0 0 0 / 0.16);
+  /* Elevation — soft, neutral, never teal. `card` and `float` are
+     theme-dependent, so they live in @theme inline below. */
+  --shadow-raise: 0 1px 2px rgb(17 24 20 / 0.06);
 
   /* Motion */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -143,8 +123,6 @@
 
   /* Layout */
   --spacing-gutter: 1rem;
-  --spacing-rail: 4.5rem; /* fixed price column */
-  --spacing-category-rail: 4rem; /* left category sidebar, all breakpoints */
   --container-menu: 40rem;
   --container-form: 32.5rem;
   --spacing-sidebar: 15rem; /* staff dashboard nav rail */
@@ -152,107 +130,140 @@
 
 /* --------------------------------------------------------------------------
    2. Semantic layer — what components actually consume.
-   Plain custom properties so they can be re-pointed at runtime; exposed to
-   Tailwind via @theme inline below.
+   `light` is the customer default; `dark` is the customer's dark mode and
+   the staff dashboard / kitchen display. The root theme is chosen before
+   first paint by the script in app/layout.tsx (saved choice, else the
+   system setting).
    -------------------------------------------------------------------------- */
-:root {
-  --surface-ground: #ffffff;
-  --surface-raised: #ffffff;
-  --surface-sunken: #f6f6f6;
-  --surface-structure: #000000; /* cart bar, status strip */
+:root,
+[data-theme="light"] {
+  --surface-ground: #eeebe5; /* greige */
+  --surface-raised: #fbfaf8; /* warm-white cards */
+  --surface-raised-hover: #f6f4f0;
+  --surface-sunken: #e7e3dc;
+  --surface-structure: #fbfaf8; /* bottom nav */
 
-  --content-primary: #000000;
-  --content-secondary: #5a5a5a;
-  --content-tertiary: #767676;
-  --content-muted: #9a9a9a;
-  --content-on-structure: #ffffff;
+  --content-primary: #1f2421; /* charcoal */
+  --content-secondary: #5e625f; /* 5.3:1 on the page, 6.2:1 on a card */
+  --content-tertiary: #626663;
+  --content-muted: #9a9d9a; /* disabled and placeholder only */
+  --content-on-structure: #1f2421;
   --content-on-accent: #ffffff;
 
-  --line-hairline: #dcdcdc;
-  --line-strong: #bfbfbf;
+  --line-hairline: #e2ded7;
+  --line-strong: #d6d1c8;
+  /* Cards separate by shadow in light; the border only matters in dark. */
+  --line-card: transparent;
 
-  /* Disabled is a fill swap, never an opacity drop — opacity takes the text
-     below the contrast floor. Tag and skeleton share the same quiet step. */
-  --surface-disabled: #ededed; /* slate-100 */
-  --content-disabled: #9a9a9a; /* slate-400 */
-  --surface-tag: #ededed;
-  --surface-skeleton: #ededed;
+  --surface-disabled: #e7e3dc;
+  --content-disabled: #9a9d9a;
+  --surface-tag: #f0ede8;
+  --surface-skeleton: #e7e3dc;
 
-  --accent: #006c84;
-  --accent-hover: #0093b0;
-  --accent-active: #045d72;
-  --accent-subtle: #e4f8fc;
-  --accent-subtle-border: #bfeff8;
-  --accent-on-subtle: #0a3a46;
+  --accent: #0f766e; /* fill under text — 5.5:1 with white */
+  --accent-hover: #115e59;
+  --accent-active: #134e4a;
+  --accent-brand: #0d9488; /* icons, rings, selected borders, the open dot */
+  --accent-subtle: #e3f1ee;
+  --accent-subtle-border: #99d5cc;
+  --accent-on-subtle: #115e59;
 
-  --danger: #c7261a;
+  --highlight: #ccfbf1;
+  --highlight-on: #134e4a;
+
+  --danger: #b91c1c;
   --danger-on: #ffffff;
-  --danger-text: #a81f14;
-  --danger-subtle: #fcebe9;
+  --danger-text: #b91c1c;
+  --danger-subtle: #fef2f2;
 
-  /* Store-status "open" only — see the green ramp's comment above. */
-  --success: #0f7a3c;
+  --success: #0f766e;
   --success-on: #ffffff;
-  --success-subtle: #e6f7ec;
-  --success-subtle-border: #c3efd2;
-  --success-on-subtle: #166534;
+  --success-subtle: #e3f1ee;
+  --success-subtle-border: #99d5cc;
+  --success-on-subtle: #115e59;
 
-  --focus-ring: #006c84;
+  --focus-ring: #0d9488;
+
+  --elevation-card: 0 1px 2px rgb(31 36 33 / 0.04), 0 8px 24px rgb(31 36 33 / 0.06);
+  --elevation-float: 0 -2px 24px rgb(31 36 33 / 0.08);
+  --texture-opacity: 0.05;
+
+  --illo-backdrop: #e3f1ee;
+  /* Illustration palette — food and drink colours for the category
+     illustrations only. Shared by both themes; only the backdrop changes. */
+  --illo-teal: #0d9488;
+  --illo-teal-soft: #99d5cc;
+  --illo-cream: #fff8ec;
+  --illo-latte: #c8a27a;
+  --illo-coffee: #6f4a33;
+  --illo-gold: #e7b75f;
+  --illo-leaf: #6baf6e;
+  --illo-leaf-dark: #3f8a52;
+  --illo-tomato: #e0735a;
+  --illo-ink: #1f2421;
 
   --dur-fast: 120ms;
   --dur-base: 180ms;
-  --dur-slow: 260ms;
+  --dur-slow: 300ms;
 
-  /* Control heights. Kiosk mode overrides these, nothing else changes. */
   --control-sm: 2.25rem;
   --control-md: 2.75rem;
   --control-lg: 3.25rem;
   --tap-min: 2.75rem;
 }
 
-/* Dark mode: black ground, white ink, and cyan steps up to 300 so it stays
-   above 3:1. Text on accent inverts to black. Also the mode a wall board runs in. */
 [data-theme="dark"] {
-  --surface-ground: #000000;
-  --surface-raised: #141414;
-  --surface-sunken: #0a0a0a;
-  --surface-structure: #141414;
+  --surface-ground: #0f1312;
+  --surface-raised: #181d1b; /* cards */
+  --surface-raised-hover: #1e2421;
+  --surface-sunken: #0b0e0d;
+  --surface-structure: #141917; /* bottom nav */
 
-  --content-primary: #ffffff;
-  --content-secondary: #bfbfbf;
-  --content-tertiary: #9a9a9a;
-  --content-muted: #767676;
-  --content-on-structure: #ffffff;
-  --content-on-accent: #000000;
+  --content-primary: #f6f4f0;
+  --content-secondary: #b4b8b5;
+  --content-tertiary: #a4a8a5;
+  --content-muted: #6f736f; /* disabled and placeholder only */
+  --content-on-structure: #f6f4f0;
+  --content-on-accent: #042f2e; /* 9.5:1 on #2DD4BF */
 
-  --line-hairline: #262626;
-  --line-strong: #404040;
+  --line-hairline: rgb(63 63 70 / 0.5);
+  --line-strong: #3f3f46;
+  --line-card: rgb(63 63 70 / 0.5);
 
-  /* The quiet step inverts: slate-100 on black would read as a bright chip. */
-  --surface-disabled: #262626; /* slate-800 */
-  --content-disabled: #767676; /* slate-500 */
-  --surface-tag: #262626;
-  --surface-skeleton: #141414; /* slate-900 — matches the raised surface */
+  --surface-disabled: #1e2421;
+  --content-disabled: #6f736f;
+  --surface-tag: #1e2421;
+  --surface-skeleton: #1e2421;
 
-  --accent: #45cfe9;
-  --accent-hover: #8ae1f2;
-  --accent-active: #12b5d4;
-  --accent-subtle: #0a3a46;
-  --accent-subtle-border: #045d72;
-  --accent-on-subtle: #bfeff8;
+  --accent: #2dd4bf;
+  --accent-hover: #5eead4;
+  --accent-active: #14b8a6;
+  --accent-brand: #2dd4bf;
+  --accent-subtle: #133532;
+  --accent-subtle-border: #115e59;
+  --accent-on-subtle: #99f6e4;
 
-  --danger: #e8574a;
-  --danger-on: #000000; /* white on the lightened fill is 3.6:1 */
-  --danger-text: #f09a91;
-  --danger-subtle: #3a120e;
+  --highlight: #134e4a;
+  --highlight-on: #ccfbf1;
 
-  --success: #4ade80;
-  --success-on: #000000;
-  --success-subtle: #0f3d1f;
-  --success-subtle-border: #166534;
-  --success-on-subtle: #86efac;
+  --danger: #fca5a5;
+  --danger-on: #0f1312;
+  --danger-text: #fca5a5;
+  --danger-subtle: #450a0a;
 
-  --focus-ring: #45cfe9;
+  --success: #2dd4bf;
+  --success-on: #042f2e;
+  --success-subtle: #133532;
+  --success-subtle-border: #115e59;
+  --success-on-subtle: #99f6e4;
+
+  --focus-ring: #5eead4;
+
+  --elevation-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 20px rgb(0 0 0 / 0.3);
+  --elevation-float: 0 -2px 24px rgb(0 0 0 / 0.5);
+  --texture-opacity: 0.07;
+
+  --illo-backdrop: #133532;
 }
 
 /* Kiosk: shared in-store device. Bigger targets, same everything else. */
@@ -263,23 +274,13 @@
   --tap-min: 3.5rem;
 }
 
-/*
- * Staff surface (dashboard, kitchen display, staff sign-in): a deliberately
- * rounder geometry than the customer menu's crisp 3px tiles. The menu's
- * "surfaces square, tiles crisp" rule (§1) is about a physical countertop
- * display read at a glance; the back office is a desktop admin screen with
- * no such constraint, so this scope trades that crispness for a softer,
- * more modern card language. Scoped, not global — nothing here touches the
- * customer-facing token values.
- */
-[data-surface="staff"] {
-  --radius-tile: 14px;
-  --radius-input: 12px;
-}
-
 @theme inline {
+  --shadow-card: var(--elevation-card);
+  --shadow-float: var(--elevation-float);
+
   --color-ground: var(--surface-ground);
   --color-raised: var(--surface-raised);
+  --color-raised-hover: var(--surface-raised-hover);
   --color-sunken: var(--surface-sunken);
   --color-structure: var(--surface-structure);
 
@@ -301,9 +302,13 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-active: var(--accent-active);
+  --color-brand: var(--accent-brand);
   --color-accent-subtle: var(--accent-subtle);
   --color-accent-subtle-border: var(--accent-subtle-border);
   --color-on-accent-subtle: var(--accent-on-subtle);
+
+  --color-highlight: var(--highlight);
+  --color-on-highlight: var(--highlight-on);
 
   --color-danger: var(--danger);
   --color-on-danger: var(--danger-on);
@@ -324,6 +329,7 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    background-color: var(--surface-ground);
   }
 
   body {
@@ -333,20 +339,11 @@
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-
-    /* Drives the opsz axis so the 12px spec line and the 56px display line are
-       genuinely different drawings, not one drawing scaled. This is the reason
-       the face was chosen, and it is silently disabled the moment anything in
-       the tree sets font-variation-settings — so nothing in this system does.
-       Rule: only reach for font-variation-settings for axes with no CSS
-       property of their own. Bricolage has none of those. */
+    /* Drives Roboto Flex's opsz axis. Silently disabled by anything that
+       sets font-variation-settings — so nothing in this system does. */
     font-optical-sizing: auto;
-    font-stretch: 100%;
   }
 
-  /* Every numeral in the interface aligns. Prices in a column are unreadable
-     with proportional figures. */
   body,
   input,
   button,
@@ -354,17 +351,19 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* The focus ring is cyan, and cyan already means interactive — so focus
-     reads correctly on both grounds without a second treatment. */
   :focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
-    border-radius: var(--radius-tile);
+    border-radius: var(--radius-control);
   }
 
   ::selection {
-    background-color: var(--accent-subtle);
-    color: var(--accent-on-subtle);
+    background-color: var(--highlight);
+    color: var(--highlight-on);
+  }
+
+  ::placeholder {
+    color: var(--content-muted);
   }
 
   hr {
@@ -372,7 +371,8 @@
     border-top: 1px solid var(--line-hairline);
   }
 
-  :root {
+  :root,
+  [data-theme="light"] {
     color-scheme: light;
     accent-color: var(--accent);
   }
@@ -380,10 +380,7 @@
     color-scheme: dark;
   }
 
-  /* Page gutter grows with viewport — 16px mobile, 24px ≥640px, 32px
-     ≥1024px. A plain custom property, so it cascades under the utility
-     classes that already reference it (p-gutter, px-gutter, …) without
-     redeclaring them per breakpoint. */
+  /* Page gutter grows with viewport — 16px mobile, 24px ≥640px, 32px ≥1024px. */
   @media (min-width: 640px) {
     :root {
       --spacing-gutter: 1.5rem;
@@ -399,46 +396,36 @@
 /* --------------------------------------------------------------------------
    4. Utilities
    -------------------------------------------------------------------------- */
+
+/* The card: white (or raised dark) at radius-tile with a soft shadow. In
+   dark the shadow barely shows, so a faint border carries the edge. */
+@utility surface-card {
+  background-color: var(--surface-raised);
+  border: 1px solid var(--line-card);
+  border-radius: var(--radius-tile);
+  box-shadow: var(--shadow-card);
+}
+
 @layer utilities {
-  /* Width goes down, never up — the axis caps at 100. Condense metadata to fit;
-     never expand a heading to emphasise it. */
-  .wdth-condensed {
-    font-stretch: 90%;
-  }
-  .wdth-tight {
-    font-stretch: 82%;
-  }
-  .wdth-normal {
-    font-stretch: 100%;
+  /* Urbanist: titles, sections, display figures and item names. */
+  .text-section,
+  .text-title,
+  .text-display,
+  .text-item,
+  .text-metric {
+    font-family: var(--font-display);
   }
 
-  /* Tasting notes — replaces the italic treatment, since Bricolage ships
-     upright only. Weight 350 is the only sub-400 text in the system, which
-     makes it as distinct as an italic was. Never used for anything actionable. */
+  /* Tasting notes — secondary colour, a touch of tracking. No italic. */
   .tasting-note {
     font-size: var(--text-note);
     line-height: var(--text-note--line-height);
-    letter-spacing: var(--text-note--letter-spacing);
-    font-weight: 350;
+    letter-spacing: 0.01em;
+    font-weight: 400;
     color: var(--content-secondary);
   }
 
-  /* Fixed price column so prices align down the menu list. */
-  .price-rail {
-    inline-size: var(--spacing-rail);
-    text-align: end;
-    font-variant-numeric: tabular-nums;
-    flex: none;
-  }
-
-  .tap-target {
-    min-inline-size: var(--tap-min);
-    min-block-size: var(--tap-min);
-  }
-
-  /* Chips and stepper segments draw at 40px but must be pressable at 44. The
-     hit area grows past the paint rather than the control growing, so the
-     visual spec and the touch floor both hold. */
+  /* Grows the hit area past the paint to the 44px floor. */
   .tap-expand {
     position: relative;
   }
@@ -455,41 +442,30 @@
     padding-block-end: env(safe-area-inset-bottom, 0px);
   }
 
-  .hairline-b {
-    border-block-end: 1px solid var(--line-hairline);
-  }
-
-  /* Horizontal category rail — scrollable without a visible bar. */
-  .rail-scroll {
-    overflow-x: auto;
-    scrollbar-width: none;
-    scroll-snap-type: x proximity;
-    overscroll-behavior-x: contain;
-  }
-  .rail-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
   .line-clamp-2-desc {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+}
 
-  /* One-off, scoped to the Home screen's open-store badge only — not a
-     general elevation. The system otherwise deliberately has no coloured
-     shadows ("cyan glows would make cyan mean decoration as well as
-     action"); this is the explicit, narrow exception for the one green
-     status a customer should feel is "live" at a glance. */
-  .shadow-glow-open {
-    box-shadow: 0 0 16px 2px color-mix(in srgb, var(--success) 45%, transparent);
-  }
+/* The page texture — a faint paper grain over the greige (and the dark
+   ground), from an inline SVG noise filter. A fixed, inert layer behind
+   everything (app/layout.tsx); its strength is --texture-opacity, low
+   enough that it never affects text contrast. */
+.page-texture {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--texture-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* --------------------------------------------------------------------------
-   5. Roast indicator — a segment count in the current text colour. Cyan is
-   reserved for action, so roast can't borrow it; segments also survive
+   5. Roast indicator — a segment count in the current text colour. The accent
+   is reserved for action, so roast can't borrow it; segments also survive
    greyscale, which a coloured dot would not.
    -------------------------------------------------------------------------- */
 @layer components {
@@ -508,48 +484,10 @@
     background: var(--content-tertiary);
   }
 
-  /* The one orchestrated moment: add-to-cart confirmation. Nothing else in the
-     system animates on its own — and nothing ever animates font-stretch or
+  /* Nothing in the system animates on its own, and nothing ever animates
      font-weight, which forces glyph re-rasterisation every frame. */
-  @keyframes count-swap {
-    0% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    45% {
-      transform: translateY(-0.5em);
-      opacity: 0;
-    }
-    55% {
-      transform: translateY(0.5em);
-      opacity: 0;
-    }
-    100% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
 
-  @keyframes bar-rise {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-
-  .animate-count-swap {
-    animation: count-swap var(--dur-base) var(--ease-standard);
-  }
-
-  .animate-bar-rise {
-    animation: bar-rise var(--dur-slow) var(--ease-standard);
-  }
-
-  /* Item sheet entrance — motion answering the action of opening it, same
-     tokens as the cart bar's rise but its own keyframe since the two are
-     unrelated features that happen to share a shape. */
+  /* Item sheet entrance — motion answering the action of opening it. */
   @keyframes sheet-rise {
     from {
       transform: translateY(100%);
@@ -630,35 +568,10 @@
     animation: ticket-enter var(--dur-slow) var(--ease-standard);
   }
 
-  /* Third documented §6 exception (see docs/DESIGN-SYSTEM.md): a slow, low-
-     amplitude breathing loop on the bottom nav's floating Menu circle, its
-     one always-on orientation cue. Deliberately not the coloured glow §5
-     reserves for the open-store badge — scale and opacity only, so it never
-     reads as decoration the way a cyan glow would. Not built from --dur-*:
-     those durations are tuned for sub-300ms interaction feedback, and a
-     breathing cadence is a different category of motion (ambient, not
-     answering a single action) with its own, much longer timing. */
-  @keyframes menu-pulse {
-    0%,
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.045);
-      opacity: 0.92;
-    }
-  }
-
-  .animate-menu-pulse {
-    animation: menu-pulse 2.6s ease-in-out infinite;
-  }
-
-  /* Cart icon's item-count badge — answers the same action as the (now
-     superseded) cart bar's count-swap once did: something was just added
-     or removed. Plays on every count change via a key remount in
-     components/bottom-nav.tsx, not a persisted DOM node whose text mutates,
-     so a pop-in (scale + fade) reads more honestly than a value swap would. */
+  /* Cart icon's item-count badge — answers something just being added or
+     removed. Plays on every count change via a key remount in
+     components/cart/cart-button.tsx, so a pop-in (scale + fade) rather than
+     a value swap. */
   @keyframes badge-pop {
     0% {
       transform: scale(0.5);
@@ -687,5 +600,68 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   Print
+   -------------------------------------------------------------------------- */
+
+/* Table cards (components/staff/table-card.tsx). The staff QR generator
+   portals `.qr-print-root` onto <body> only while printing, so the rule
+   below hides everything else on the page and lays the cards out four to
+   an A4 sheet — two 95mm columns, two 133mm rows, 4mm cutting gaps. A named
+   page keeps that A4 setup off every other printout (receipts). */
+.qr-print-root {
+  display: none;
+}
+
+@page table-cards {
+  size: A4 portrait;
+  margin: 8mm;
+}
+
+@media print {
+  body:has(> .qr-print-root) > :not(.qr-print-root) {
+    display: none !important;
+  }
+
+  .qr-print-root {
+    page: table-cards;
+    display: grid;
+    grid-template-columns: repeat(2, 95mm);
+    grid-auto-rows: 133mm;
+    gap: 4mm;
+    justify-content: center;
+  }
+
+  /* Keep the teal fills — browsers drop backgrounds when printing. */
+  .table-card {
+    break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* The customer app is dark by default, but paper is white and browsers
+     drop page backgrounds when printing — white text would vanish. Print
+     re-points the dark theme's surfaces and text to the light values. */
+  [data-theme="dark"] {
+    color-scheme: light;
+    --surface-ground: #ffffff;
+    --surface-raised: #ffffff;
+    --surface-sunken: #ffffff;
+    --surface-structure: #ffffff;
+    --content-primary: #1f2421;
+    --content-secondary: #5e625f;
+    --content-tertiary: #626663;
+    --content-muted: #626663;
+    --content-on-structure: #1f2421;
+    --line-hairline: #d6d1c8;
+    --line-card: #d6d1c8;
+    --accent: #0f766e;
+    --accent-brand: #0d9488;
+    --content-on-accent: #ffffff;
+    --danger-text: #b91c1c;
   }
 }

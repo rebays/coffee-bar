@@ -148,7 +148,7 @@ export function ItemSheetShell({
         aria-modal="true"
         aria-labelledby={`item-heading-${slug}`}
         tabIndex={-1}
-        className="animate-sheet-rise shadow-float bg-raised relative flex w-full flex-col"
+        className="animate-sheet-rise shadow-float bg-raised border-hairline relative flex w-full flex-col border-t"
         style={{
           maxInlineSize: 'var(--container-form)',
           maxBlockSize: '88vh',
@@ -170,7 +170,7 @@ export function ItemSheetShell({
             type="button"
             onClick={close}
             aria-label="Close"
-            className="tap-expand bg-black/45 text-white backdrop-blur-sm hover:bg-black/60 inline-flex items-center justify-center rounded-full"
+            className="tap-expand bg-raised border-hairline text-primary hover:bg-sunken inline-flex items-center justify-center rounded-full border-2"
             style={{ inlineSize: '2.25rem', blockSize: '2.25rem' }}
           >
             <CloseIcon />
@@ -188,7 +188,7 @@ export function ItemSheetShell({
           onPointerUp={onHandlePointerUp}
           onPointerCancel={onHandlePointerUp}
         >
-          <span aria-hidden="true" className="bg-hairline block h-1 w-9 rounded-full" />
+          <span aria-hidden="true" className="bg-line-strong block h-1 w-9 rounded-full" />
         </div>
 
         <ItemSheetCloseContext.Provider value={close}>{children}</ItemSheetCloseContext.Provider>

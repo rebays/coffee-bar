@@ -63,7 +63,7 @@ export function OrderStatusPoller({ initial }: { initial: OrderStatusView }) {
   return (
     <div className="px-gutter flex flex-col items-center gap-8 py-8 text-center">
       <div className="flex flex-col items-center gap-2">
-        <p className="text-spec wdth-condensed text-secondary">Pickup code</p>
+        <p className="text-spec text-secondary">Pickup code</p>
         <p className="text-metric" aria-label={`Pickup code ${status.pickupCode.split('').join(' ')}`}>
           {status.pickupCode}
         </p>
@@ -89,14 +89,20 @@ export function OrderStatusPoller({ initial }: { initial: OrderStatusView }) {
             <p className="text-body text-secondary max-w-xs">{payInstructionFor(status.state)}</p>
           ) : null}
           {stepIndex !== null ? (
-            <div className="w-full max-w-xs">
+            <section aria-label="Order progress" className="surface-card w-full max-w-sm p-5 text-left">
+              <p className="text-small text-tertiary mb-4 flex items-center gap-2" aria-live="polite">
+                {isTerminal ? null : (
+                  <span aria-hidden="true" className="bg-success block rounded-full" style={{ inlineSize: '0.5rem', blockSize: '0.5rem' }} />
+                )}
+                {isTerminal ? 'Order complete' : 'Live — updates on its own'}
+              </p>
               <OrderStatusStepper activeIndex={stepIndex} />
-            </div>
+            </section>
           ) : null}
         </>
       )}
 
-      <ul className="divide-hairline w-full max-w-xs divide-y text-left">
+      <ul className="surface-card divide-hairline w-full max-w-sm divide-y px-4 py-1 text-left">
         {status.lines.map((line, index) => (
           <li key={index} className="flex items-start gap-3 py-2">
             <ItemThumbnail src={line.imageUrl} size={40} />

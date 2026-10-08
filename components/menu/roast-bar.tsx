@@ -4,7 +4,7 @@ import type { RoastLevel } from '@/lib/types'
 const TOTAL_SEGMENTS = 3
 
 /**
- * A segment count in the current text colour, not a coloured dot — cyan is
+ * A segment count in the current text colour, not a coloured dot — the accent is
  * reserved for action, and segments survive greyscale printing.
  */
 export function RoastBar({ level }: { level: RoastLevel }) {

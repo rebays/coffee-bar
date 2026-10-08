@@ -9,8 +9,10 @@ import {
   deleteMenuItem,
   getMenuItem,
   getMenuItems,
+  getTodaysSpecial,
   reorderMenuItem,
   setSoldOut,
+  setTodaysSpecial,
   updateMenuItem,
 } from './menu-store.ts'
 
@@ -173,4 +175,43 @@ test('reorderMenuItem on an unknown slug is a no-op', () => {
   const before = getMenuItems().map((item) => item.slug)
   reorderMenuItem('does-not-exist', 'up')
   assert.deepEqual(getMenuItems().map((item) => item.slug), before)
+})
+
+test('there is no special until staff set one', () => {
+  assert.equal(getTodaysSpecial(), undefined)
+})
+
+test("setting today's special moves it off whichever item held it", () => {
+  setTodaysSpecial('espresso', true)
+  assert.equal(getTodaysSpecial()?.slug, 'espresso')
+
+  setTodaysSpecial('flat-white', true)
+  assert.equal(getTodaysSpecial()?.slug, 'flat-white')
+  assert.equal(getMenuItem('espresso')?.todaysSpecial, false)
+  assert.equal(getMenuItems().filter((item) => item.todaysSpecial).length, 1)
+})
+
+test("un-marking today's special leaves none", () => {
+  setTodaysSpecial('espresso', true)
+  setTodaysSpecial('espresso', false)
+  assert.equal(getTodaysSpecial(), undefined)
+})
+
+test("a sold-out special isn't featured, but stays marked for when it's back", () => {
+  setTodaysSpecial('espresso', true)
+  setSoldOut('espresso', true)
+  assert.equal(getTodaysSpecial(), undefined)
+  setSoldOut('espresso', false)
+  assert.equal(getTodaysSpecial()?.slug, 'espresso')
+})
+
+test("editing an item keeps its today's-special flag", () => {
+  setTodaysSpecial('espresso', true)
+  const item = getMenuItem('espresso')!
+  updateMenuItem('espresso', { ...item, name: 'Double espresso' })
+  assert.equal(getTodaysSpecial()?.name, 'Double espresso')
+})
+
+test("setting today's special on an unknown slug returns undefined", () => {
+  assert.equal(setTodaysSpecial('nope', true), undefined)
 })

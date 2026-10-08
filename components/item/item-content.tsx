@@ -1,3 +1,5 @@
+import { Tag } from '@/components/ui/tag'
+import { formatSBD, formatSBDSpoken } from '@/lib/money'
 import type { MenuItem } from '@/lib/types'
 
 import { ItemImage } from './item-image'
@@ -17,11 +19,22 @@ export function ItemContent({ item }: { item: MenuItem }) {
         <ItemImage item={item} />
       </div>
       <div className="px-gutter flex flex-col gap-2 py-4">
+        {item.isNew || item.tags.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {item.isNew ? <Tag variant="new">New</Tag> : null}
+            {item.tags.map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
+          </div>
+        ) : null}
         {/* id is referenced by the sheet shell's aria-labelledby, derived
             independently from the same slug — see item-sheet-shell.tsx */}
         <h1 id={`item-heading-${item.slug}`} className="text-title">
           {item.name}
         </h1>
+        <p className="text-price text-primary" aria-label={formatSBDSpoken(item.basePrice)}>
+          {formatSBD(item.basePrice)}
+        </p>
         <p className="text-body text-secondary">{item.description}</p>
         {item.tastingNote ? <p className="tasting-note">{item.tastingNote}</p> : null}
       </div>

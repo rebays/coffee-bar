@@ -1,21 +1,23 @@
 'use client'
 
+import { Check, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { addToCart } from '@/lib/cart-store'
 import type { MenuItem } from '@/lib/types'
 
+/** How long the "Added" confirmation stays on the pill. */
+const CONFIRM_MS = 1200
+
 /**
- * An item with any option group (milk, sweetness, a side choice — anything
- * to decide) opens the item sheet to choose it, same destination as tapping
- * the row. Salads are the same even with zero option groups — the Notes
- * field (dressing on the side, no croutons, …) only lives on the sheet, and
- * for a salad that's worth reaching on the fast path, unlike a plain
- * croissant. Every other zero-group item (sides, bakery/desserts)
- * quick-adds directly: the one orchestrated moment, a guaranteed 120ms cyan
- * fill driven by a timer, not :active, so a fast tap still reads as a
- * deliberate confirmation rather than a mouse-press blip.
+ * The "Add +" pill on a menu item. An item with any option group (milk,
+ * sweetness, a side choice — anything to decide) opens the item sheet to
+ * choose it, same destination as tapping the card. Salads do too even with
+ * zero option groups — the Notes field (dressing on the side, no croutons, …)
+ * only lives on the sheet. Every other zero-group item (sides,
+ * bakery/desserts) adds straight to the cart and the pill confirms with
+ * "Added" and a check — words and icon, not colour alone.
  */
 export function AddToCartButton({
   item,
@@ -26,7 +28,10 @@ export function AddToCartButton({
 }) {
   const router = useRouter()
   const [justAdded, setJustAdded] = useState(false)
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const hasOptions = item.optionGroupIds.length > 0 || item.category === 'salad'
+
+  useEffect(() => () => clearTimeout(timer.current), [])
 
   function handleAdd() {
     if (hasOptions) {
@@ -35,37 +40,38 @@ export function AddToCartButton({
     }
     addToCart(item.slug, {}, 1)
     setJustAdded(true)
-    setTimeout(() => setJustAdded(false), 120)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => setJustAdded(false), CONFIRM_MS)
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleAdd}
-      aria-label={hasOptions ? `Customize ${item.name}` : label}
-      className={[
-        'tap-expand inline-flex items-center justify-center rounded-full border',
-        'transition-colors duration-(--dur-fast) ease-(--ease-standard)',
-        justAdded
-          ? 'border-transparent bg-accent text-on-accent'
-          : 'border-hairline text-accent hover:bg-sunken',
-      ].join(' ')}
-      style={{ inlineSize: '2.25rem', blockSize: '2.25rem' }}
-    >
-      <PlusIcon />
-    </button>
-  )
-}
-
-function PlusIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none">
-      <path
-        d="M8 3v10M3 8h10"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
+    <>
+      <button
+        type="button"
+        onClick={handleAdd}
+        aria-label={hasOptions ? `Customize ${item.name}` : label}
+        className={[
+          'bg-accent text-on-accent hover:bg-accent-hover text-small inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 font-semibold',
+          'transition-all duration-(--dur-fast) ease-(--ease-standard) active:scale-95',
+        ].join(' ')}
+        style={{ blockSize: 'var(--tap-min)' }}
+      >
+        {justAdded ? (
+          <>
+            <Check size={16} strokeWidth={2.25} aria-hidden="true" />
+            Added
+          </>
+        ) : (
+          <>
+            Add
+            <Plus size={16} strokeWidth={2.25} aria-hidden="true" />
+          </>
+        )}
+      </button>
+      {/* Outside the button: its aria-label would otherwise swallow this. */}
+      <span className="sr-only" aria-live="polite">
+        {justAdded ? `${item.name} added to your order` : ''}
+      </span>
+    </>
   )
 }

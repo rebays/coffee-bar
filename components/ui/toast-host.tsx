@@ -35,7 +35,7 @@ export function ToastHost() {
         <div
           key={toast.id}
           className={[
-            'animate-toast-in text-small rounded-pill px-4 py-2 shadow-raise',
+            'animate-toast-in text-small rounded-control px-4 py-2 shadow-raise',
             VARIANT[toast.variant],
           ].join(' ')}
         >
